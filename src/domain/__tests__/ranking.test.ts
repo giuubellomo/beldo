@@ -1,4 +1,4 @@
-import { rankear } from '../ranking';
+import { ordenarPorTotalHastaRonda, rankear } from '../ranking';
 import type { CriterioVictoria, Participante, Partida } from '../types';
 
 /**
@@ -131,5 +131,34 @@ describe('rankear', () => {
     rankear(juego);
 
     expect(juego.participantes.map((p) => p.id)).toEqual(ordenOriginal);
+  });
+});
+
+describe('ordenarPorTotalHastaRonda', () => {
+  const ids = (partida: Partida, numeroRonda: number) =>
+    ordenarPorTotalHastaRonda(partida, numeroRonda).map((p) => p.id);
+
+  it('criterio menor: arriba el total mas bajo', () => {
+    expect(ids(partidaConTotales('menor', { a: -25, b: -55, c: -10 }), 1)).toEqual(['b', 'a', 'c']);
+  });
+
+  it('criterio mayor: arriba el total mas alto', () => {
+    expect(ids(partidaConTotales('mayor', { a: 25, b: 55, c: 10 }), 1)).toEqual(['b', 'a', 'c']);
+  });
+
+  it('los empatados quedan en el orden de la partida', () => {
+    expect(ids(partidaConTotales('menor', { a: -10, b: -30, c: -10 }), 1)).toEqual(['b', 'a', 'c']);
+  });
+
+  it('cuenta solo hasta esa ronda', () => {
+    const partida = partidaConTotales('menor', { a: -10, b: -30 });
+    const ronda2 = {
+      numero: 2,
+      estado: 'en_curso' as const,
+      entradas: [{ participanteId: 'a', puntosManuales: null, marcas: { r1: -50 } }],
+    };
+    const conRonda2 = { ...partida, rondas: [...partida.rondas, ronda2] };
+    expect(ids(conRonda2, 1)).toEqual(['b', 'a']);
+    expect(ids(conRonda2, 2)).toEqual(['a', 'b']);
   });
 });

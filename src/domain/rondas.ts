@@ -9,9 +9,9 @@
 import type { Participante, Partida, Plantilla, Regla, RondaJugada } from './types';
 
 /**
- * La «Cortó» de Karioka, por el id fijo que tiene en la semilla (cambio 79):
+ * La «Cortó» de Carioca, por el id fijo que tiene en la semilla (cambio 79):
  * quien corta no carga puntaje y, en esa ronda, todos los demas tienen que
- * cargar mas de 0. Solo esa regla: una copia de Karioka tiene ids nuevos y ahi
+ * cargar mas de 0. Solo esa regla: una copia de Carioca tiene ids nuevos y ahi
  * «Cortó» es una regla comun.
  */
 export const REGLA_CORTO = '841a8dd9-f409-4553-9826-79e0ea157cfc';
@@ -43,7 +43,7 @@ export function puntajeDeReglaEnRonda(
   return ajuste ?? regla.puntajeBase;
 }
 
-/** ¿Se juega la «Cortó» de Karioka en esa ronda? */
+/** ¿Se juega la «Cortó» de Carioca en esa ronda? */
 export function rondaConCorte(plantilla: Plantilla, numeroRonda: number): boolean {
   return reglasDeLaRonda(plantilla, numeroRonda).some((regla) => regla.id === REGLA_CORTO);
 }
@@ -155,7 +155,7 @@ export function desmarcarRegla(
  * participante y sus marcas quedan como las dejo en el popup. Las que ya tenia
  * y siguen marcadas conservan los puntos que se congelaron al marcarlas (C-4);
  * las nuevas pasan por `marcarRegla`, que se las saca a otro si son de
- * asignacion unica (RF-406). Si marco la «Cortó» de Karioka, el puntaje queda
+ * asignacion unica (RF-406). Si marco la «Cortó» de Carioca, el puntaje queda
  * en 0 (cambio 79). Pura, como las otras dos.
  */
 export function aplicarCarga(

@@ -41,7 +41,7 @@ export const es = {
     titulo: 'BELIA',
     subtitulo: 'Anotador de partidas',
     continuarPartida: 'Continuar partida',
-    /** «Karioka · 4 jugadores · Ronda 2» */
+    /** «Carioca · 4 jugadores · Ronda 2» */
     resumenPartida: (plantilla: string, jugadores: number, ronda: number) =>
       `${plantilla} · ${jugadores} jugadores · Ronda ${ronda}`,
     nuevoJuego: 'Nuevo juego',
@@ -94,7 +94,7 @@ export const es = {
     },
     duplicar: 'Duplicar',
     borrar: 'Borrar',
-    /** RF-304. El numero aparece recien en la segunda copia: «Karioka (copia 2)». */
+    /** RF-304. El numero aparece recien en la segunda copia: «Carioca (copia 2)». */
     nombreCopia: (nombre: string, numero: number) =>
       numero === 1 ? `${nombre} (copia)` : `${nombre} (copia ${numero})`,
     // RF-305 + RNF-6
@@ -107,7 +107,7 @@ export const es = {
     nueva: 'Nueva plantilla',
     editar: 'Editar plantilla',
     nombreEIcono: 'Nombre e ícono',
-    nombreEjemplo: 'Ej: Karioka',
+    nombreEjemplo: 'Ej: Carioca',
     /** Lector de pantalla, en el selector de icono. `clave` es la del ícono: «cartas». */
     icono: (clave: string) => `Ícono ${clave}`,
     puntosDeCadaRonda: 'Los puntos de cada ronda',
@@ -223,7 +223,7 @@ export const es = {
       objetivo === undefined ? `Ronda ${ronda}` : `Ronda ${ronda} · ${objetivo}`,
     /** Una regla de asignacion unica que ya tiene otro: al guardar se le saca (cambio 76). */
     laTiene: (nombres: string[]) => `La tiene ${nombres.join(' y ')}`,
-    /** Debajo del stepper apagado, cuando se marca la «Cortó» de Karioka (cambio 79). */
+    /** Debajo del stepper apagado, cuando se marca la «Cortó» de Carioca (cambio 79). */
     cortoSinPuntaje: 'El que corta no carga puntaje',
     // Solo para el lector de pantalla
     escribirPuntaje: 'Escribir el puntaje',

@@ -59,9 +59,10 @@ export function Stepper({
   /**
    * Cada digito ya cambia el valor: asi GUARDAR toma lo escrito aunque el
    * teclado siga abierto. Vacio vale el minimo, y nada se pasa del maximo.
+   * Los ceros de adelante se borran: sobre un 0, escribir 125 da 125 y no 0125.
    */
   function escribir(texto: string) {
-    const digitos = texto.replace(/[^0-9]/g, '');
+    const digitos = texto.replace(/[^0-9]/g, '').replace(/^0+(?=\d)/, '');
     setEscrito(digitos);
     const numero = digitos === '' ? minimo : Number(digitos);
     onCambiar(Math.min(maximo, Math.max(minimo, numero)));
@@ -91,6 +92,8 @@ export function Stepper({
         <TextInput
           autoFocus
           value={escrito}
+          placeholder="0"
+          placeholderTextColor={colores.grisMedio}
           keyboardType="number-pad"
           maxLength={String(maximo).length}
           accessibilityLabel={etiquetaEscribir}
@@ -103,7 +106,8 @@ export function Stepper({
           accessibilityRole="button"
           accessibilityLabel={etiquetaEscribir}
           accessibilityValue={{ text: formato(valor) }}
-          onPress={() => setEscrito(String(valor))}
+          // Un 0 no se edita, se reemplaza: el campo arranca vacio.
+          onPress={() => setEscrito(valor === 0 ? '' : String(valor))}
           style={styles.valorAncho}
         >
           <Text style={[texto, numerales, styles.valor]}>{formato(valor)}</Text>

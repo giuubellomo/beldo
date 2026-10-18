@@ -47,6 +47,14 @@ export const MIGRACIONES: Migracion[] = [
       END
       WHERE plantilla_id = 'ef056daf-4cba-4370-81b9-0568005c3bcb' AND numero IN (4, 5, 6);`,
   },
+  {
+    // Cambio 90: la predefinida se llamaba «Karioka» y es «Carioca». Como en la 3,
+    // se corrige solo la predefinida ya guardada: las copias y las partidas son de
+    // la usuaria y conservan el nombre que tenian.
+    version: 4,
+    nombre: 'nombre de la Carioca',
+    sql: `UPDATE plantilla SET nombre = 'Carioca' WHERE id = 'ef056daf-4cba-4370-81b9-0568005c3bcb';`,
+  },
 ];
 
 /** La version mas alta que conoce este build. */

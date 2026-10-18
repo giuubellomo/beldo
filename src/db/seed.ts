@@ -20,7 +20,7 @@ const CORTO = REGLA_CORTO;
 const PUNTAJE_BASE = -10;
 
 /** A-1 (provisional): el objetivo de cada ronda y lo que valen Bajó primero y Cortó. */
-const RONDAS_KARIOKA: Array<[objetivo: string, puntaje: number]> = [
+const RONDAS_CARIOCA: Array<[objetivo: string, puntaje: number]> = [
   ['2 piernas', -10],
   ['1 pierna + 1 escalera', -20],
   ['2 escaleras', -30],
@@ -30,9 +30,9 @@ const RONDAS_KARIOKA: Array<[objetivo: string, puntaje: number]> = [
   ['3 escaleras', -70],
 ];
 
-export const KARIOKA: Plantilla = {
+export const CARIOCA: Plantilla = {
   id: 'ef056daf-4cba-4370-81b9-0568005c3bcb',
-  nombre: 'Karioka',
+  nombre: 'Carioca',
   icono: 'cartas',
   modoPuntos: 'suma',
   criterioVictoria: 'menor',
@@ -41,7 +41,7 @@ export const KARIOKA: Plantilla = {
     { id: BAJO_PRIMERO, titulo: 'Bajó primero', puntajeBase: PUNTAJE_BASE, alcance: 'todas', asignacionUnica: true, orden: 0 },
     { id: CORTO, titulo: 'Cortó', puntajeBase: PUNTAJE_BASE, alcance: 'todas', asignacionUnica: true, orden: 1 },
   ],
-  rondas: RONDAS_KARIOKA.map(([objetivo, puntaje], i) => {
+  rondas: RONDAS_CARIOCA.map(([objetivo, puntaje], i) => {
     // Como en el editor (5.4): solo se guarda ajuste si difiere del base. La ronda 1
     // vale -10, igual que el base, y no tiene que aparecer como ajustada.
     const ajustes: Record<string, number> =
@@ -61,7 +61,7 @@ export const SIMPLE: Plantilla = {
   rondas: [],
 };
 
-export const PLANTILLAS_PREDEFINIDAS: Plantilla[] = [KARIOKA, SIMPLE];
+export const PLANTILLAS_PREDEFINIDAS: Plantilla[] = [CARIOCA, SIMPLE];
 
 /** Corre en cada arranque; solo inserta la primera vez. Devuelve cuantas inserto. */
 export function sembrar(): Promise<number> {

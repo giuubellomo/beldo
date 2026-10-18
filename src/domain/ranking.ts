@@ -2,8 +2,8 @@
  * Ranking y empates (C-3, RF-801, RF-804).
  */
 
-import { totalesDePartida } from './scoring';
-import type { Partida } from './types';
+import { totalesDePartida, totalHastaRonda } from './scoring';
+import type { CriterioVictoria, Participante, Partida } from './types';
 
 export interface Puesto {
   posicion: number;          // 1, 1, 3 en caso de empate
@@ -24,8 +24,8 @@ export interface Puesto {
 export function rankear(partida: Partida): Puesto[] {
   const { criterioVictoria } = partida.plantilla;
 
-  const ordenados = [...totalesDePartida(partida)].sort((a, b) =>
-    criterioVictoria === 'menor' ? a.total - b.total : b.total - a.total,
+  const ordenados = [...totalesDePartida(partida)].sort(
+    (a, b) => compararTotales(criterioVictoria, a.total, b.total),
   );
 
   const puestos: Puesto[] = [];
@@ -41,4 +41,22 @@ export function rankear(partida: Partida): Puesto[] {
   }
 
   return puestos;
+}
+
+/**
+ * Los participantes de la ronda en juego, de quien va ganando a quien va
+ * perdiendo segun el acumulado hasta esa ronda (cambio 91). Como en `rankear`,
+ * los empatados quedan en el orden de `partida.participantes`.
+ */
+export function ordenarPorTotalHastaRonda(partida: Partida, numeroRonda: number): Participante[] {
+  const { criterioVictoria } = partida.plantilla;
+  return partida.participantes
+    .map((participante) => ({ participante, total: totalHastaRonda(partida, participante.id, numeroRonda) }))
+    .sort((a, b) => compararTotales(criterioVictoria, a.total, b.total))
+    .map(({ participante }) => participante);
+}
+
+/** Negativo si `a` va adelante de `b`. */
+function compararTotales(criterio: CriterioVictoria, a: number, b: number): number {
+  return criterio === 'menor' ? a - b : b - a;
 }

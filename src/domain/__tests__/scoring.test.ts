@@ -203,14 +203,14 @@ describe('puntajeCargado', () => {
     expect(puntajeCargado(r, plantilla('resta'), 'c')).toBeNull();
   });
 
-  it('en una ronda con la Cortó de Karioka, el 0 de quien no corto se ve vacio', () => {
-    const karioka = {
+  it('en una ronda con la Cortó de Carioca, el 0 de quien no corto se ve vacio', () => {
+    const carioca = {
       ...plantilla('resta'),
       reglas: [{ id: REGLA_CORTO, titulo: 'Cortó', puntajeBase: -10, alcance: 'todas' as const, asignacionUnica: true, orden: 0 }],
     };
     const conCorte = { ...r, entradas: [entrada('a', 0, { [REGLA_CORTO]: -10 }), entrada('b', 0)] };
-    expect(puntajeCargado(conCorte, karioka, 'a')).toBe(-10);
-    expect(puntajeCargado(conCorte, karioka, 'b')).toBeNull();
+    expect(puntajeCargado(conCorte, carioca, 'a')).toBe(-10);
+    expect(puntajeCargado(conCorte, carioca, 'b')).toBeNull();
   });
 
   it('un cero cargado es un puntaje, no un vacio', () => {

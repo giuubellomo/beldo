@@ -434,35 +434,35 @@ describe('haySiguienteRonda', () => {
   });
 });
 
-// --- La «Cortó» de Karioka (cambio 79) -----------------------------------
+// --- La «Cortó» de Carioca (cambio 79) -----------------------------------
 
-describe('cargoPuntaje con la Cortó de Karioka', () => {
-  const karioka = plantilla({ reglas: [regla('bajo'), regla(REGLA_CORTO)] });
+describe('cargoPuntaje con la Cortó de Carioca', () => {
+  const carioca = plantilla({ reglas: [regla('bajo'), regla(REGLA_CORTO)] });
 
   it('el que corto cargo con 0; con mas de 0 no', () => {
-    expect(cargoPuntaje(ronda(1, [entrada('a', 0, { [REGLA_CORTO]: -10 })]), karioka, 'a')).toBe(true);
-    expect(cargoPuntaje(ronda(1, [entrada('a', 5, { [REGLA_CORTO]: -10 })]), karioka, 'a')).toBe(false);
+    expect(cargoPuntaje(ronda(1, [entrada('a', 0, { [REGLA_CORTO]: -10 })]), carioca, 'a')).toBe(true);
+    expect(cargoPuntaje(ronda(1, [entrada('a', 5, { [REGLA_CORTO]: -10 })]), carioca, 'a')).toBe(false);
   });
 
   it('los demas tienen que tener mas de 0', () => {
-    expect(cargoPuntaje(ronda(1, [entrada('b', 0)]), karioka, 'b')).toBe(false);
-    expect(cargoPuntaje(ronda(1, [entrada('b', 15)]), karioka, 'b')).toBe(true);
+    expect(cargoPuntaje(ronda(1, [entrada('b', 0)]), carioca, 'b')).toBe(false);
+    expect(cargoPuntaje(ronda(1, [entrada('b', 15)]), carioca, 'b')).toBe(true);
   });
 
-  it('sin la Cortó de Karioka el 0 vale, aunque otra regla se llame corto', () => {
+  it('sin la Cortó de Carioca el 0 vale, aunque otra regla se llame corto', () => {
     expect(cargoPuntaje(ronda(1, [entrada('b', 0, { corto: -10 })]), plantilla(), 'b')).toBe(true);
   });
 
   it('una ronda con un 0 de quien no corto no se puede cerrar', () => {
     const r = ronda(1, [entrada('a', 0, { [REGLA_CORTO]: -10, bajo: -10 }), entrada('b', 0)]);
-    expect(puedeCerrarRonda(r, karioka, [participante('a'), participante('b')])).toEqual({
+    expect(puedeCerrarRonda(r, carioca, [participante('a'), participante('b')])).toEqual({
       puede: false,
       motivo: 'faltan_puntajes',
     });
   });
 
   it('aplicarCarga deja en 0 al que marco la Cortó', () => {
-    const r = aplicarCarga(ronda(1, [entrada('a', 20)]), karioka, 'a', 20, [REGLA_CORTO]);
+    const r = aplicarCarga(ronda(1, [entrada('a', 20)]), carioca, 'a', 20, [REGLA_CORTO]);
     expect(r.entradas).toEqual([entrada('a', 0, { [REGLA_CORTO]: -10 })]);
   });
 });

@@ -204,7 +204,7 @@ export function useBorradorDePlantilla(id: string): BorradorDePlantilla {
         rondasIlimitadas: borrador.rondas.length === 0,
       };
       if (esPredefinida) {
-        // Sin cambiarle el nombre seria otra «Karioka»: se llama como una copia (RF-304).
+        // Sin cambiarle el nombre seria otra «Carioca»: se llama como una copia (RF-304).
         const nombre =
           datos.nombre === guardada?.nombre
             ? nombreDeCopia(datos.nombre, lista.map((otra) => otra.nombre))
@@ -218,7 +218,7 @@ export function useBorradorDePlantilla(id: string): BorradorDePlantilla {
 }
 
 /**
- * RF-304: «Karioka (copia)», y si ese nombre ya esta, «Karioka (copia 2)». La base
+ * RF-304: «Carioca (copia)», y si ese nombre ya esta, «Carioca (copia 2)». La base
  * no exige nombres unicos, pero dos plantillas con el mismo nombre no se distinguen.
  */
 export function nombreDeCopia(nombre: string, ocupados: string[]): string {

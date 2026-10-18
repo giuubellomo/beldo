@@ -75,7 +75,7 @@ cambiala **acá** antes de empezar, no a mitad de camino.
 
 | ID | Decisión | Estado |
 |---|---|---|
-| A-1 | Karioka se precarga con 7 rondas (ver `seed.ts` en el paso 2.4). La usuaria puede duplicar la plantilla y editarla. | Provisional |
+| A-1 | Carioca se precarga con 7 rondas (ver `seed.ts` en el paso 2.4). La usuaria puede duplicar la plantilla y editarla. | Provisional |
 | A-2 | El puntaje manual se carga **siempre como número positivo**; `modo_puntos` de la plantilla decide si entra sumando o restando al total. El signo de cada regla es propio de la regla y se guarda con signo. | **Cerrada** |
 | A-3 | No se elige la cantidad de rondas al armar la partida: se duplica la plantilla y se le sacan rondas. | Provisional |
 | A-4 | ~~Nombre por defecto de la partida: `Partida del <d/m>`. Editable.~~ Desde el paso 7.1 (cambio 71): el nombre se escribe al armar la partida, es obligatorio y no se edita después. | **Cerrada** |
@@ -571,7 +571,7 @@ pegar botones.
 
   `src/db/seed.ts` corre una sola vez, en la primera apertura, e inserta:
 
-  **Karioka** — `modoPuntos: 'suma'`, `criterioVictoria: 'menor'`, `rondasIlimitadas: false`.
+  **Carioca** — `modoPuntos: 'suma'`, `criterioVictoria: 'menor'`, `rondasIlimitadas: false`.
   Reglas:
   - `Bajó primero`, base `-10`, alcance `todas`, asignación única
   - `Cortó`, base `-10`, alcance `todas`, asignación única
@@ -596,7 +596,7 @@ pegar botones.
   `plantillas.asegurarPredefinidas` inserta solo las que falten, así que la primera vez
   entran las dos y después no entra nada.
 
-  **Checkpoint:** en una base recién creada, `plantillas.listar()` devuelve las dos, Karioka
+  **Checkpoint:** en una base recién creada, `plantillas.listar()` devuelve las dos, Carioca
   con 2 reglas y 7 rondas. Borrar la app y reinstalar vuelve a sembrarlas sin duplicar.
 
 - [x] **2.5 — Hooks: cómo la pantalla se entera de que la base cambió** (RNF-2)
@@ -757,8 +757,8 @@ si más adelante entra color, entra por los tokens y en un solo lugar.
   **Después del 5.4** (cambio 64): las predefinidas también se tocan. Abren el editor para
   ver lo que traen, y guardar ahí crea una copia; la original no cambia.
 
-  **Checkpoint:** verificado en el teléfono: duplicar Karioka dos veces da «Karioka (copia)»
-  y «Karioka (copia 2)», borrar pide confirmación, y la copia sobrevive al reinicio.
+  **Checkpoint:** verificado en el teléfono: duplicar Carioca dos veces da «Carioca (copia)»
+  y «Carioca (copia 2)», borrar pide confirmación, y la copia sobrevive al reinicio.
 
 - [x] **5.2 — Editor de plantilla: datos generales** (RF-302)
 
@@ -948,17 +948,17 @@ escribiendo una suma dentro de un componente, está mal.
   mostrar cuál (RF-706). Al cerrar: la ronda pasa a `cerrada`, la siguiente a `en_curso`.
   Si la plantilla es de rondas ilimitadas y no hay siguiente, crear una nueva.
 
-  **Checkpoint:** una partida de Karioka avanza de la ronda 1 a la 2 y el objetivo cambia.
+  **Checkpoint:** una partida de Carioca avanza de la ronda 1 a la 2 y el objetivo cambia.
   Una partida Simple genera rondas indefinidamente.
 
   **Cómo quedó** (ver registro, cambios 78 y 79): SIGUIENTE va al pie de la ronda en juego y
   cierra con `partidas.cerrarRonda`. Mientras no se pueda, dice solo qué reglas faltan
   asignar; los puntajes que faltan se ven en las casillas vacías, sin texto. En la última
   ronda de una plantilla con rondas fijas no hay SIGUIENTE (`haySiguienteRonda`): se termina
-  con TERMINAR PARTIDA. La «Cortó» de Karioka pide que quien corta quede en 0 y que los
+  con TERMINAR PARTIDA. La «Cortó» de Carioca pide que quien corta quede en 0 y que los
   demás carguen más de 0.
 
-  Verificado en el teléfono: Karioka pasa de la 1 a la 2 con otro objetivo, y las
+  Verificado en el teléfono: Carioca pasa de la 1 a la 2 con otro objetivo, y las
   validaciones de «Cortó».
 
 - [x] **7.6 — Corregir una ronda cerrada** (RF-709)
@@ -1069,7 +1069,7 @@ escribiendo una suma dentro de un componente, está mal.
 
 - [x] **9.4 — Partida completa de punta a punta**
 
-  Armá una partida de Karioka con 4 participantes, jugá 3 rondas cargando puntajes y
+  Armá una partida de Carioca con 4 participantes, jugá 3 rondas cargando puntajes y
   marcando reglas, corregí un puntaje viejo, terminá y mirá el podio. Sin recargar la app
   a mano en ningún momento.
 
@@ -1191,7 +1191,7 @@ Durante el paso 2.4 (semilla):
 | # | Cambio | Motivo |
 |---|---|---|
 | 28 | La semilla no corre «una sola vez» con una marca: corre en cada arranque desde `app/_layout.tsx`, y `plantillas.asegurarPredefinidas` inserta por id fijo solo las que falten, chequeando e insertando en la misma transacción. `plantillas.crear` ya no acepta la opción `predefinida`. | No puede correr dentro de `obtenerBase`: `escribir` esperaría a la apertura que la está llamando y la app quedaría colgada. Con ids fijos es idempotente, y una predefinida que se sume en un build futuro entra sola. |
-| 29 | La ronda 1 de Karioka no guarda ajuste: vale −10, igual que el base. | El editor (5.4) guarda un ajuste solo si difiere del base y lo muestra como «ajustado». Con el ajuste guardado, la ronda 1 aparecería ajustada sin estarlo. El puntaje que vale no cambia. |
+| 29 | La ronda 1 de Carioca no guarda ajuste: vale −10, igual que el base. | El editor (5.4) guarda un ajuste solo si difiere del base y lo muestra como «ajustado». Con el ajuste guardado, la ronda 1 aparecería ajustada sin estarlo. El puntaje que vale no cambia. |
 | 30 | `icono` de las predefinidas: claves provisionales `cartas` y `numeral`. | El plan no fija el set de íconos; lo define el sistema de diseño (fase 3). Si cambia, se corrige con una migración. |
 | 31 | El placeholder de `app/index.tsx` suma una línea con las plantillas y llama a `plantillas.listar()` directo. | Es la mitad visible del checkpoint. Temporal como la del 2.2: se va con el paso 4.2, y los hooks recién llegan en el 2.5. |
 
@@ -1255,7 +1255,7 @@ Durante el paso 5.1 (lista de plantillas):
 |---|---|---|
 | 51 | El ícono del pie del Home dice «Plantillas» y no «Agregar plantilla», y abre la lista. | El mockup no tiene pantalla de lista: ahí el ícono va directo a «Nueva plantilla». Pero duplicar (RF-304) y borrar (RF-305) no tienen otra puerta de entrada, y el plan pide la lista. Desde la lista se agrega con la card punteada, así que el «agregar» del mockup no se pierde. |
 | 52 | Las predefinidas se marcan con un `Chip` que dice «Predefinida», no con un candado. La lista usa el header nativo del stack en lugar del encabezado dibujado del mockup. | Los glifos de candado disponibles se dibujan como emoji de color en el teléfono y romperían el monocromo (misma razón que el cambio 36). La pantalla no está en el mockup, así que no hay encabezado propio que copiar, y el header nativo trae el botón de volver. |
-| 53 | Duplicar numera desde la segunda copia: «Karioka (copia)», «Karioka (copia 2)». | `plantilla.nombre` no es único en la base, y dos plantillas con el mismo nombre no se distinguen en la grilla del armado (6.1). |
+| 53 | Duplicar numera desde la segunda copia: «Carioca (copia)», «Carioca (copia 2)». | `plantilla.nombre` no es único en la base, y dos plantillas con el mismo nombre no se distinguen en la grilla del armado (6.1). |
 
 Durante el paso 5.2 (editor: datos generales):
 
@@ -1263,7 +1263,7 @@ Durante el paso 5.2 (editor: datos generales):
 |---|---|---|
 | 54 | **El editor de plantillas no guarda en el momento**: arma un borrador en memoria y escribe la plantilla entera al tocar GUARDAR PLANTILLA. Volver con cambios sin guardar pide confirmación; el gesto de arrastrar está apagado y el botón atrás de Android pasa por la misma confirmación. | Choca con la convención «guardar en el momento» (RNF-2), así que lo decidió la usuaria. Es lo que dibuja el mockup y para lo que se escribió el repositorio (`actualizar` reemplaza reglas y rondas enteras). La alternativa creaba una plantilla vacía apenas se entraba a «Nueva plantilla» y no dejaba arrepentirse de un cambio. La confirmación cubre lo que RNF-2 protege: que no se pierda nada en silencio. |
 | 55 | El borrador es un hook, `useBorradorDePlantilla`: expone `borrador`, `sucio`, `cambiar` y `guardar`, y no se pisa cuando `mutar` recarga las plantillas. `ID_NUEVA` (`'nueva'`) es el id de ruta de una plantilla en blanco; no hay `app/plantillas/nueva.tsx`. | La pantalla pasaba las 150 líneas de la convención, y los pasos 5.3 y 5.4 editan el mismo borrador. El plan fija `app/plantillas/[id].tsx` como única ruta del editor. |
-| 56 | Al guardar, `rondasIlimitadas` se deriva: sin rondas definidas, la plantilla es de rondas libres. El nombre se corta en 30 caracteres. | Es la invariante que ya cumplen las predefinidas (Karioka 7 rondas, Simple ninguna) y evita una plantilla de cero rondas fijas, que no se puede jugar. El largo del nombre no estaba fijado y tiene que entrar en la card de la grilla del armado (6.1). |
+| 56 | Al guardar, `rondasIlimitadas` se deriva: sin rondas definidas, la plantilla es de rondas libres. El nombre se corta en 30 caracteres. | Es la invariante que ya cumplen las predefinidas (Carioca 7 rondas, Simple ninguna) y evita una plantilla de cero rondas fijas, que no se puede jugar. El largo del nombre no estaba fijado y tiene que entrar en la card de la grilla del armado (6.1). |
 
 Durante el paso 5.3 (reglas):
 
@@ -1286,7 +1286,7 @@ Después del paso 5.4:
 
 | # | Cambio | Motivo |
 |---|---|---|
-| 64 | **Las predefinidas se abren en el editor.** Título «Plantilla predefinida», una línea que avisa que no se modifica, y GUARDAR COMO COPIA al pie: guardar crea una plantilla propia con ids de regla nuevos y los ajustes reapuntados. Si no se le cambió el nombre, se llama como una copia («Karioka (copia)», RF-304). `nombreDeCopia` pasó de la lista al hook para que la usen las dos pantallas. | En el 5.1 las predefinidas no se podían tocar, y no había forma de ver qué reglas y rondas traían sin duplicarlas. Decisión de la usuaria entre esto y un editor en solo lectura. RF-303 se sigue cumpliendo: la original no se edita, y el repositorio lo sigue impidiendo. |
+| 64 | **Las predefinidas se abren en el editor.** Título «Plantilla predefinida», una línea que avisa que no se modifica, y GUARDAR COMO COPIA al pie: guardar crea una plantilla propia con ids de regla nuevos y los ajustes reapuntados. Si no se le cambió el nombre, se llama como una copia («Carioca (copia)», RF-304). `nombreDeCopia` pasó de la lista al hook para que la usen las dos pantallas. | En el 5.1 las predefinidas no se podían tocar, y no había forma de ver qué reglas y rondas traían sin duplicarlas. Decisión de la usuaria entre esto y un editor en solo lectura. RF-303 se sigue cumpliendo: la original no se edita, y el repositorio lo sigue impidiendo. |
 
 Durante el paso 6.1 (bottom sheet de armado):
 
@@ -1316,7 +1316,7 @@ Durante el paso 7.1 (estructura de la pantalla):
 | 76 | Popup de carga: el stepper va de a 5 y tocar el número abre el teclado numérico (`Stepper` con `escribible`). Una regla de asignación única que ya tiene otro muestra «La tiene …». Se guarda todo junto con `partidas.guardarCarga`, y `aplicarCarga` y `quienesTienenRegla` son nuevas en `rondas.ts` (con tests). | Decisión de la usuaria: de a 1 no se llega a un puntaje como 135, y el mockup no dice nada de a quién se le va a sacar la regla. Con GUARDAR, el puntaje y las marcas se escriben juntos o no se escribe nada. |
 | 77 | En la ronda en juego, debajo del nombre de cada jugador van las reglas que tiene marcadas en esa ronda («Bajó primero · Cortó»), también las opcionales. | Pedido de la usuaria al probar el 7.4: ver de un vistazo quién bajó primero y quién cortó. |
 | 78 | En la última ronda de una plantilla con rondas fijas no hay SIGUIENTE: se termina con TERMINAR PARTIDA (8.1). `haySiguienteRonda` nueva en `rondas.ts` (con tests). | Decisión de la usuaria: cerrar la última ronda no abre nada, y el 8.1 ya avisa si quedó incompleta. |
-| 79 | **La «Cortó» de Karioka**: quien la tiene queda en 0 (`aplicarCarga` lo fuerza y el popup apaga el stepper) y, en esa ronda, los demás tienen que cargar más de 0. Se reconoce por su id fijo de la semilla (`REGLA_CORTO` en `rondas.ts`): en una copia de Karioka, «Cortó» es una regla común. `cargoPuntaje` y `rondaConCorte` nuevas; `todosCargaron` y `puntajeCargado` reciben la plantilla. Un 0 de quien no cortó se ve como casilla vacía. SIGUIENTE no avisa en texto los puntajes que faltan: se fue `partida.faltanPuntajes`. | Decisión de la usuaria al probar el 7.5: así se juega la Karioka. Prefirió no sumar una opción al editor de reglas. |
+| 79 | **La «Cortó» de Carioca**: quien la tiene queda en 0 (`aplicarCarga` lo fuerza y el popup apaga el stepper) y, en esa ronda, los demás tienen que cargar más de 0. Se reconoce por su id fijo de la semilla (`REGLA_CORTO` en `rondas.ts`): en una copia de Carioca, «Cortó» es una regla común. `cargoPuntaje` y `rondaConCorte` nuevas; `todosCargaron` y `puntajeCargado` reciben la plantilla. Un 0 de quien no cortó se ve como casilla vacía. SIGUIENTE no avisa en texto los puntajes que faltan: se fue `partida.faltanPuntajes`. | Decisión de la usuaria al probar el 7.5: así se juega la Carioca. Prefirió no sumar una opción al editor de reglas. |
 | 80 | El total al lado de cada casilla es el acumulado **hasta esa ronda** (`totalHastaRonda`, nueva en `scoring.ts` con tests): en la ronda en juego da el total de la partida, y en una cerrada expandida, el total al terminarla. | Decisión de la usuaria: como en una planilla, el total de la partida en la ronda 1 confunde. |
 | 81 | `app/partida/[id].tsx` pasó a `app/partida/[id]/index.tsx`. Terminar la partida abre el podio con `router.replace`. En el podio, la altura y el color del escalón dependen de la posición y no del lugar en pantalla. | El podio que pide el plan (`app/partida/[id]/final.tsx`) necesita la carpeta. Con replace, la partida finalizada no queda en el historial. Así un empate en el primer lugar muestra dos escalones iguales (RF-804). |
 | 82 | **Configuración sin perfil y sin bienvenida.** El engranaje abre una pantalla con la versión de la app y «DeBello» abajo; no hay perfil que editar ni acceso a plantillas (ya está en el pie del Home). Se fueron `app/bienvenida.tsx`, `useDueno`, `es.bienvenida` y el `Stack.Protected` de `_layout`. El tema claro/oscuro sigue en fase 2. La fila del dueño queda en la base, sin uso. | Decisión de la usuaria: cierra el pendiente del cambio 66. El tema se consideró para el MVP y se dejó para fase 2 porque toca todas las pantallas. |
@@ -1326,4 +1326,6 @@ Durante el paso 7.1 (estructura de la pantalla):
 | 86 | **Fase 10 nueva: versión web**, en el mismo proyecto. Se sumaron `react-native-web` y `@expo/metro-runtime` y un `metro.config.js` que sirve `.wasm`. Las migraciones usan `BEGIN`/`COMMIT` sobre la conexión principal, como `escribir`: `withExclusiveTransactionAsync` no existe en web. Sin los headers COEP/COOP que pide la doc: `expo-sqlite` solo los necesita para operaciones sincrónicas, y la app usa solo asincrónicas. | Decisión de la usuaria en lugar de la app instalable: sin cuenta de Apple ni Xcode. Un proyecto aparte duplicaría todo el código. La base en web está en alfa según la doc de v57. |
 | 87 | Ajustes para web: (1) la base se abre en una sola pestaña a la vez; `turno.web.ts` espera hasta 3 s un Web Lock antes de abrirla (al recargar, la página anterior tarda en soltarla, y si expo-sqlite falla su worker queda roto) y, si sigue ocupada, la app dice «BELIA ya está abierta en otra pestaña». (2) `unstable_settings.anchor = 'index'`: el Home queda siempre debajo, así hay atrás aunque se recargue una pantalla interna. (3) Las cards de plantilla, regla y ronda ya no son tocables enteras: en web un botón no puede ir dentro de otro; se toca la parte de los textos. (4) Ícono propio: cuadrado #1C1C1E con «B» blanca (`scripts/generar-icono.swift`), también en `assets/icon.png`. (5) `public/index.html` con los meta de «Agregar a inicio» y `public/manifest.json`. | Lo encontrado al recorrer la web en el paso 10.2. El ícono lo eligió la usuaria entre armar uno simple o pasar un diseño; resuelve el ícono del cambio 85 (la splash sigue pendiente para un build nativo). |
 | 88 | **Publicada en GitHub Pages** (https://giuubellomo.github.io/belia/), con el repo hecho público. `.github/workflows/pages.yml` exporta y publica en cada push a `main`, y copia `index.html` como `404.html` para que recargar una pantalla interna abra la app. Como Pages la sirve en `/belia`, `app.json` lleva `experiments.baseUrl: "/belia"`, y `public/index.html` y `public/manifest.json` apuntan ahí. Se usa GitHub Actions en lugar del paquete `gh-pages` que sugiere la guía de Expo: no suma dependencias y no hace falta `.nojekyll`. | Decisión de la usuaria: subirla para probarla en el iPhone y que quede publicada. En Safari, la base (OPFS) y los Web Locks solo andan con HTTPS, y la IP de la Mac por Wi-Fi no lo tiene. Con la cuenta gratis, Pages pide repo público; ella eligió eso antes que pagar Pro o usar otro hosting. |
-| 89 | **Orden de las rondas de Karioka:** 2 piernas, 1 pierna + 1 escalera, 2 escaleras, 2 piernas + 1 escalera, 1 pierna + 2 escaleras, 3 piernas, 3 escaleras. Se corrigió `seed.ts` (y la tabla del paso 2.4), y la migración 3 corrige los objetivos de las rondas 4 a 6 en la Karioka predefinida que ya está guardada. Los puntajes siguen con el número de ronda (−40, −50, −60). No se tocan las copias ni las partidas, que guardan su snapshot. | Lo pidió la usuaria antes de publicar la web. La semilla inserta las predefinidas solo la primera vez: sin la migración, el teléfono y el Chrome de la Mac se quedaban con el orden viejo. |
+| 89 | **Orden de las rondas de Carioca:** 2 piernas, 1 pierna + 1 escalera, 2 escaleras, 2 piernas + 1 escalera, 1 pierna + 2 escaleras, 3 piernas, 3 escaleras. Se corrigió `seed.ts` (y la tabla del paso 2.4), y la migración 3 corrige los objetivos de las rondas 4 a 6 en la Carioca predefinida que ya está guardada. Los puntajes siguen con el número de ronda (−40, −50, −60). No se tocan las copias ni las partidas, que guardan su snapshot. | Lo pidió la usuaria antes de publicar la web. La semilla inserta las predefinidas solo la primera vez: sin la migración, el teléfono y el Chrome de la Mac se quedaban con el orden viejo. |
+| 90 | **La predefinida se llama «Carioca»**, no «Karioka». Se corrigió `seed.ts` (y el resto del plan y del código), y la migración 4 renombra la predefinida que ya está guardada. Las copias («Karioka (copia)») y las partidas ya jugadas conservan el nombre que tenían. La migración 3 no se tocó: ya estaba publicada. | Lo pidió la usuaria. Como en el cambio 89, la semilla inserta solo la primera vez: sin la migración, el teléfono y la web seguían mostrando el nombre viejo. |
+| 91 | **La ronda en juego se ordena por quien va ganando**: el acumulado hasta esa ronda, de mejor a peor según `criterioVictoria`, con los empatados en el orden de la partida (`ordenarPorTotalHastaRonda` en `ranking.ts`). Al cargar un puntaje, las filas se deslizan a su nuevo lugar (`Deslizable` en `TarjetaDeRonda.tsx`, con `Animated` porque `LayoutAnimation` no hace nada en web y el proyecto no tiene Reanimated). Las rondas cerradas, expandidas para corregir, quedan en el orden de la partida. | Lo pidió la usuaria. Eligió el acumulado y no el puntaje de la ronda, que las cerradas no se reordenen, y que el cambio de lugar se vea animado. |

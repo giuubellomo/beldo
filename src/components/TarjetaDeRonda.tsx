@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRef, useState, type ReactNode } from 'react';
+import { Animated, Easing, Platform, Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 
 import {
   haySiguienteRonda,
@@ -8,6 +8,7 @@ import {
   reglasDeLaRonda,
   reglasSinAsignar,
 } from '@/domain/rondas';
+import { ordenarPorTotalHastaRonda } from '@/domain/ranking';
 import { mejoresDeRonda, puntajeCargado, totalHastaRonda } from '@/domain/scoring';
 import type { Participante, Partida, Plantilla, RondaJugada } from '@/domain/types';
 import { conSigno, es } from '@/i18n/es';
@@ -113,7 +114,7 @@ export function TarjetaDeRonda({
         titulo={titulo}
         marca={<Chip texto={es.partida.enJuego} variante="borde" />}
       />
-      <Filas ronda={ronda} partida={partida} onTocarParticipante={onTocarParticipante} />
+      <Filas ronda={ronda} partida={partida} onTocarParticipante={onTocarParticipante} ordenadas />
       {onSiguiente !== undefined && haySiguienteRonda(partida, ronda.numero) && (
         <Siguiente ronda={ronda} partida={partida} onSiguiente={onSiguiente} />
       )}
@@ -146,18 +147,61 @@ function Cabecera({ ronda, partida, titulo, marca }: PropsCabecera) {
   );
 }
 
+interface PropsFilas extends Pick<Props, 'ronda' | 'partida' | 'onTocarParticipante'> {
+  /**
+   * La ronda en juego (cambio 91): de quien va ganando a quien va perdiendo por
+   * el acumulado, y al cargar un puntaje las filas se deslizan a su lugar. Una
+   * cerrada expandida queda en el orden de la partida.
+   */
+  ordenadas?: boolean;
+}
+
 /** Una fila por participante, con el acumulado hasta esta ronda (cambio 80). */
-function Filas({ ronda, partida, onTocarParticipante }: Pick<Props, 'ronda' | 'partida' | 'onTocarParticipante'>) {
-  return partida.participantes.map((participante) => (
-    <FilaDeParticipante
-      key={participante.id}
-      participante={participante}
-      puntaje={puntajeCargado(ronda, partida.plantilla, participante.id)}
-      total={totalHastaRonda(partida, participante.id, ronda.numero)}
-      reglas={reglasMarcadas(ronda, partida.plantilla, participante.id)}
-      onPress={onTocarParticipante && (() => onTocarParticipante(participante.id))}
-    />
-  ));
+function Filas({ ronda, partida, onTocarParticipante, ordenadas = false }: PropsFilas) {
+  const participantes = ordenadas ? ordenarPorTotalHastaRonda(partida, ronda.numero) : partida.participantes;
+  return participantes.map((participante) => {
+    const fila = (
+      <FilaDeParticipante
+        key={participante.id}
+        participante={participante}
+        puntaje={puntajeCargado(ronda, partida.plantilla, participante.id)}
+        total={totalHastaRonda(partida, participante.id, ronda.numero)}
+        reglas={reglasMarcadas(ronda, partida.plantilla, participante.id)}
+        onPress={onTocarParticipante && (() => onTocarParticipante(participante.id))}
+      />
+    );
+    return ordenadas ? <Deslizable key={participante.id}>{fila}</Deslizable> : fila;
+  });
+}
+
+/**
+ * Cuando la fila cambia de lugar, arranca dibujada donde estaba y se desliza
+ * hasta el nuevo. Con Animated y no con LayoutAnimation, que en web no hace nada.
+ */
+function Deslizable({ children }: { children: ReactNode }) {
+  const desplazamiento = useRef(new Animated.Value(0)).current;
+  const yAnterior = useRef<number | null>(null);
+
+  function alMedir(evento: LayoutChangeEvent) {
+    const { y } = evento.nativeEvent.layout;
+    const antes = yAnterior.current;
+    yAnterior.current = y;
+    // La primera medida es donde aparece: no viene de ningun lado.
+    if (antes === null || antes === y) return;
+    desplazamiento.setValue(antes - y);
+    Animated.timing(desplazamiento, {
+      toValue: 0,
+      duration: 300,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: Platform.OS !== 'web',
+    }).start();
+  }
+
+  return (
+    <Animated.View onLayout={alMedir} style={{ transform: [{ translateY: desplazamiento }] }}>
+      {children}
+    </Animated.View>
+  );
 }
 
 /** «Falta asignar: Bajó primero» (RF-706), o nada. */

@@ -3,7 +3,7 @@
   "short_name": "Beldo",
   "description": "Anotador de partidas",
   "lang": "es",
-  "start_url": "/belia/",
+  "start_url": "/beldo/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#FFFFFF",
@@ -20,5 +20,5 @@
       "type": "image/png"
     }
   ],
-  "scope": "/belia/"
+  "scope": "/beldo/"
 }

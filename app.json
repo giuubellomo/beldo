@@ -30,7 +30,7 @@
     "scheme": "belia",
     "experiments": {
       "typedRoutes": true,
-      "baseUrl": "/belia"
+      "baseUrl": "/beldo"
     }
   }
 }

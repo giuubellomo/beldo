@@ -1,9 +1,9 @@
 import { useRouter } from 'expo-router';
-import { useEffect, useState, type ReactNode } from 'react';
-import { Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { AccessibilityInfo, Keyboard, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { MAXIMO_OBJETIVO, PASO_OBJETIVO } from '@/domain/objetivo';
-import { EQUIPOS_DEL_TRUCO, maximoDeJugadores } from '@/domain/participantes';
+import { EQUIPOS_DEL_TRUCO, maximoDeJugadores, MINIMO_JUGADORES, type Faltante } from '@/domain/participantes';
 import { LARGO_MAXIMO_NOMBRE_PARTIDA } from '@/domain/partidas';
 import type { Participante, Partida } from '@/domain/types';
 import { useArmadoDePartida } from '@/hooks/useArmadoDePartida';
@@ -33,8 +33,9 @@ interface Props {
  *
  * Arriba, las plantillas de a dos por fila; abajo, los jugadores de esta
  * partida, que se cargan acá y no se guardan aparte (registro, cambio 65).
- * EMPEZAR se habilita con una plantilla y dos jugadores (RF-604) y crea la
- * partida (6.2).
+ * EMPEZAR crea la partida (6.2) si hay nombre, plantilla y jugadores (RF-604).
+ * Si falta algo se puede tocar igual (cambio 95): no empieza, marca cada parte
+ * que falta con un texto y lleva la vista a la primera.
  *
  * Asume que no hay partida en curso: el Home ya resolvió ese caso (4.2, A-5).
  */
@@ -46,6 +47,12 @@ export function SheetDeArmado({ visible, onCerrar }: Props) {
   const [jugadorEnEdicion, setJugadorEnEdicion] = useState<Participante | 'nuevo' | null>(null);
   const [empezando, setEmpezando] = useState(false);
   const [errorAlEmpezar, setErrorAlEmpezar] = useState(false);
+  // Se tocó EMPEZAR con algo sin completar: desde ahí se marca lo que falta, y
+  // cada marca se va sola apenas se completa esa parte.
+  const [intento, setIntento] = useState(false);
+  const scroll = useRef<ScrollView>(null);
+  // Dónde arranca cada parte dentro del scroll, para llevar la vista ahí.
+  const posiciones = useRef<Partial<Record<'nombre' | 'plantilla' | 'jugadores', number>>>({});
 
   // Cada apertura arranca vacía: una partida no hereda lo que se eligió para otra.
   const { reiniciar } = armado;
@@ -55,7 +62,28 @@ export function SheetDeArmado({ visible, onCerrar }: Props) {
     setJugadorEnEdicion(null);
     setEmpezando(false);
     setErrorAlEmpezar(false);
+    setIntento(false);
   }, [visible, reiniciar]);
+
+  const falta = (faltante: Faltante) => intento && armado.faltantes.includes(faltante);
+  const mensajeDeJugadores = falta('pocos')
+    ? es.nuevaPartida.faltanJugadores(MINIMO_JUGADORES - armado.jugadores.length)
+    : falta('demasiados')
+      ? es.nuevaPartida.sobranJugadores
+      : undefined;
+
+  const tocarEmpezar = () => {
+    Keyboard.dismiss();
+    const [primero] = armado.faltantes;
+    if (primero === undefined) {
+      void empezar();
+      return;
+    }
+    setIntento(true);
+    const parte = primero === 'nombre' ? 'nombre' : primero === 'plantilla' ? 'plantilla' : 'jugadores';
+    scroll.current?.scrollTo({ y: Math.max(0, (posiciones.current[parte] ?? 0) - espacios.md), animated: true });
+    AccessibilityInfo.announceForAccessibility(mensajesDe(armado.faltantes, armado.jugadores.length).join('. '));
+  };
 
   // Paso 6.2: crea la partida, cierra el sheet y la abre (7.1).
   const empezar = async () => {
@@ -89,32 +117,30 @@ export function SheetDeArmado({ visible, onCerrar }: Props) {
       visible={visible}
       onCerrar={onCerrar}
       titulo={es.nuevaPartida.titulo}
+      scrollRef={scroll}
       pie={
         <View style={styles.pie}>
           {errorAlEmpezar && <Text style={styles.error}>{es.comun.errorGuardar}</Text>}
-          <Boton
-            titulo={es.nuevaPartida.empezar}
-            deshabilitado={!armado.puedeEmpezar || empezando}
-            onPress={() => {
-              Keyboard.dismiss();
-              void empezar();
-            }}
-          />
+          <Boton titulo={es.nuevaPartida.empezar} deshabilitado={empezando} onPress={tocarEmpezar} />
         </View>
       }
     >
       {/* Obligatorio: sin nombre, EMPEZAR no se habilita (registro, cambio 71). */}
-      <CampoTexto
-        etiqueta={es.nuevaPartida.nombre}
-        valor={armado.nombre}
-        onCambiar={armado.cambiarNombre}
-        placeholder={es.nuevaPartida.nombreEjemplo}
-        maxLength={LARGO_MAXIMO_NOMBRE_PARTIDA}
-        returnKeyType="done"
-      />
+      <View onLayout={(e) => (posiciones.current.nombre = e.nativeEvent.layout.y)}>
+        <CampoTexto
+          etiqueta={es.nuevaPartida.nombre}
+          valor={armado.nombre}
+          onCambiar={armado.cambiarNombre}
+          placeholder={es.nuevaPartida.nombreEjemplo}
+          maxLength={LARGO_MAXIMO_NOMBRE_PARTIDA}
+          returnKeyType="done"
+          error={falta('nombre') ? es.nuevaPartida.faltaNombre : undefined}
+        />
+      </View>
 
-      <View style={styles.seccion}>
+      <View style={styles.seccion} onLayout={(e) => (posiciones.current.plantilla = e.nativeEvent.layout.y)}>
         <Etiqueta texto={es.nuevaPartida.tipoDeJuego} />
+        {falta('plantilla') && <Text style={styles.falta}>{es.nuevaPartida.faltaTipo}</Text>}
         <Grilla>
           {plantillas.map((plantilla) => (
             <Card
@@ -158,8 +184,9 @@ export function SheetDeArmado({ visible, onCerrar }: Props) {
         </View>
       )}
 
-      <View style={styles.seccion}>
+      <View style={styles.seccion} onLayout={(e) => (posiciones.current.jugadores = e.nativeEvent.layout.y)}>
         <Etiqueta texto={es.nuevaPartida.participantes} />
+        {mensajeDeJugadores !== undefined && <Text style={styles.falta}>{mensajeDeJugadores}</Text>}
         {maximoDeJugadores(armado.plantillaId) === EQUIPOS_DEL_TRUCO && (
           <Text style={styles.ayuda}>{es.nuevaPartida.dosEquipos}</Text>
         )}
@@ -194,7 +221,7 @@ export function SheetDeArmado({ visible, onCerrar }: Props) {
                     onPress={() => abrirJugador('nuevo')}
                     style={({ pressed }) => [styles.jugador, pressed && styles.presionado]}
                   >
-                    <View style={styles.agregar}>
+                    <View style={[styles.agregar, falta('pocos') && styles.agregarDestacado]}>
                       <Text style={styles.agregarGlifo}>{iconos.mas}</Text>
                     </View>
                     <Text style={styles.agregarTexto}>{es.nuevaPartida.agregar}</Text>
@@ -228,6 +255,16 @@ export function SheetDeArmado({ visible, onCerrar }: Props) {
   );
 }
 
+/** Lo que lee el lector de pantalla al tocar EMPEZAR sin tener todo. */
+function mensajesDe(faltantes: Faltante[], jugadores: number): string[] {
+  return faltantes.map((faltante) => {
+    if (faltante === 'nombre') return es.nuevaPartida.faltaNombre;
+    if (faltante === 'plantilla') return es.nuevaPartida.faltaTipo;
+    if (faltante === 'pocos') return es.nuevaPartida.faltanJugadores(MINIMO_JUGADORES - jugadores);
+    return es.nuevaPartida.sobranJugadores;
+  });
+}
+
 /** De a dos por fila (RF-601). Si queda uno solo en la última, ocupa media fila. */
 function Grilla({ children }: { children: ReactNode[] }) {
   const filas: ReactNode[][] = [];
@@ -254,6 +291,8 @@ const styles = StyleSheet.create({
   pie: { gap: espacios.xs },
   error: { ...tipografia.secundario, color: colores.tinta, textAlign: 'center' },
   ayuda: { ...tipografia.secundario, color: colores.grisMedio },
+  // Monocromo, como el error de CampoTexto: en tinta y no en rojo.
+  falta: { ...tipografia.chico, color: colores.tinta },
   grilla: { gap: espacios.sm },
   fila: { flexDirection: 'row', gap: espacios.sm },
   celda: { flex: 1 },
@@ -273,6 +312,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  agregarDestacado: { borderColor: colores.tinta, borderWidth: 2 },
   agregarGlifo: { fontSize: 24, color: colores.grisMedio },
   agregarTexto: { ...tipografia.secundario, color: colores.grisMedio },
 });

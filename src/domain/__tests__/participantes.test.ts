@@ -1,4 +1,5 @@
 import {
+  faltantesParaEmpezar,
   LARGO_MAXIMO_NOMBRE,
   maximoDeJugadores,
   normalizarNombre,
@@ -77,5 +78,19 @@ describe('el Truco, entre dos equipos (cambio 94)', () => {
   it('con tres no se puede empezar', () => {
     expect(puedeEmpezar('Viernes', true, 2, 2)).toBe(true);
     expect(puedeEmpezar('Viernes', true, 3, 2)).toBe(false);
+  });
+});
+
+describe('faltantesParaEmpezar (cambio 95)', () => {
+  it('con todo completo no falta nada', () => {
+    expect(faltantesParaEmpezar('Viernes', true, 3)).toEqual([]);
+  });
+
+  it('nombra todo lo que falta, en el orden del armado', () => {
+    expect(faltantesParaEmpezar('  ', false, 1)).toEqual(['nombre', 'plantilla', 'pocos']);
+  });
+
+  it('en el Truco, con mas de dos sobran', () => {
+    expect(faltantesParaEmpezar('Viernes', true, 3, 2)).toEqual(['demasiados']);
   });
 });

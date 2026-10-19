@@ -44,6 +44,7 @@ export default function RootLayout() {
 
 /**
  * Sin bienvenida desde el paso 9.1 (cambio 82): la app abre directo en el Home.
+ * La primera vez, el Home abre encima el instructivo (cambio 96).
  */
 function Navegacion() {
   return (
@@ -58,6 +59,11 @@ function Navegacion() {
       {/* El podio (8.2): se llega con replace desde la partida, asi que atras es el Home. */}
       <Stack.Screen name="partida/[id]/final" options={{ headerShown: false }} />
       <Stack.Screen name="config/index" options={{ title: es.home.configuracion, headerBackTitle: es.comun.volver }} />
+      {/* Sin gesto de arrastrar: se sale con SALTEAR o EMPEZAR, que lo marcan como visto. */}
+      <Stack.Screen
+        name="instructivo"
+        options={{ headerShown: false, presentation: 'fullScreenModal', gestureEnabled: false }}
+      />
     </Stack>
   );
 }

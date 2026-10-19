@@ -71,6 +71,11 @@ export const es = {
     ayudaObjetivo: 'La partida termina cuando alguien llega a este puntaje.',
     // Cambio 94: los participantes del Truco son los dos equipos
     dosEquipos: 'El Truco se juega entre dos equipos: cargá uno por participante.',
+    // Cambio 95: lo que falta, al tocar EMPEZAR sin tener todo
+    faltaNombre: 'Escribí un nombre para la partida',
+    faltaTipo: 'Elegí un tipo de juego',
+    faltanJugadores: (faltan: number) => (faltan === 1 ? 'Agregá 1 participante más' : `Agregá al menos ${faltan} participantes`),
+    sobranJugadores: 'Dejá solo dos: uno por equipo',
   },
 
   participante: {
@@ -261,8 +266,56 @@ export const es = {
       `${nombre}: ${total} pts, ${malas} malas y ${buenas} buenas`,
   },
 
+  /**
+   * El instructivo (cambio 96): se abre solo la primera vez y desde Configuracion.
+   * Cada pagina lleva un glifo de `theme/iconos`, que elige la pantalla.
+   */
+  instructivo: {
+    // Cambio 97: con mas animo, y cada pagina con su mini-vista (IlustracionesInstructivo)
+    paginas: [
+      {
+        titulo: '¡Chau papel y lápiz!',
+        texto: 'BELIA lleva la cuenta por vos: suma, resta y te muestra quién va ganando. Vos preocupate por jugar.',
+      },
+      {
+        titulo: 'Armá la partida en un toque',
+        texto: 'Tocá «Nuevo juego», ponele nombre, elegí a qué juegan y sumá a todos los de la mesa. ¡Listo!',
+      },
+      {
+        titulo: 'Anotá sin hacer cuentas',
+        texto:
+          'Tocá a cada jugador para cargar sus puntos. La ronda se ordena sola: el que va ganando, siempre arriba.',
+      },
+      {
+        titulo: 'Jugá con las reglas de tu casa',
+        texto: 'En «Plantillas» inventás tus juegos: reglas, rondas y hasta el puntaje para ganar. ¿Cómo lo juegan ustedes?',
+      },
+    ],
+    /** Los datos de ejemplo de las mini-vistas: no estan en la base. */
+    ejemplo: {
+      partida: 'Viernes de cartas',
+      jugadores: ['Caro', 'Juan', 'Sofi'],
+      plantillas: [
+        { nombre: 'Carioca', icono: 'cartas' },
+        { nombre: 'Simple', icono: 'numeral' },
+        { nombre: 'Truco', icono: 'palitos' },
+      ],
+      reglas: [
+        { titulo: 'Bajó primero', puntos: -10 },
+        { titulo: 'Cortó', puntos: -10 },
+      ],
+      objetivo: 500,
+    },
+    saltear: 'Saltear',
+    siguiente: 'SIGUIENTE',
+    empezar: '¡A JUGAR!',
+    // Solo para el lector de pantalla: «Página 2 de 4»
+    pagina: (actual: number, total: number) => `Página ${actual} de ${total}`,
+  },
+
   /** Configuracion (paso 9.1, cambio 82). El tema claro/oscuro llega en fase 2. */
   config: {
+    comoSeUsa: 'Cómo se usa',
     version: (version: string) => `BELIA · versión ${version}`,
     empresa: 'DeBello',
   },

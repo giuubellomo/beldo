@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import { maximoDeJugadores, puedeEmpezar } from '@/domain/participantes';
+import { faltantesParaEmpezar, maximoDeJugadores, type Faltante } from '@/domain/participantes';
 import { nombreDePartida } from '@/domain/partidas';
 import type { Partida, Participante } from '@/domain/types';
 import { nuevoId } from '@/repositories/comun';
@@ -33,7 +33,8 @@ export interface ArmadoDePartida {
   /** Vuelve a cero: sin nombre, sin plantilla y sin jugadores. Es la misma funcion en cada render. */
   reiniciar: () => void;
   hayLugar: boolean;
-  puedeEmpezar: boolean;
+  /** Lo que falta para empezar, en el orden del sheet (cambio 95). Vacio: se puede. */
+  faltantes: Faltante[];
   /**
    * Crea la partida con lo elegido (paso 6.2) y recarga los hooks montados: el
    * Home pasa a mostrarla. Si falla, deja pasar el error.
@@ -83,7 +84,7 @@ export function useArmadoDePartida(): ArmadoDePartida {
     sacarJugador: (id) => setJugadores((previos) => previos.filter((jugador) => jugador.id !== id)),
     reiniciar,
     hayLugar: jugadores.length < maximo,
-    puedeEmpezar: puedeEmpezar(nombre, plantillaId !== null, jugadores.length, maximo),
+    faltantes: faltantesParaEmpezar(nombre, plantillaId !== null, jugadores.length, maximo),
     empezar: () => {
       const limpio = nombreDePartida(nombre);
       if (limpio === null) return Promise.reject(new Error('La partida no tiene nombre'));

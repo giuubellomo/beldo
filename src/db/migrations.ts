@@ -61,6 +61,15 @@ export const MIGRACIONES: Migracion[] = [
     nombre: 'puntaje objetivo de la plantilla',
     sql: 'ALTER TABLE plantilla ADD COLUMN puntaje_objetivo INTEGER CHECK (puntaje_objetivo >= 1);',
   },
+  {
+    // Cambio 96: ajustes sueltos de la app, clave y valor. El primero es si ya se
+    // vio el instructivo. Una base que ya tiene partidas no es de alguien nuevo:
+    // se marca como visto (lo puede abrir igual desde Configuracion).
+    version: 6,
+    nombre: 'ajustes e instructivo',
+    sql: `CREATE TABLE ajuste (clave TEXT PRIMARY KEY, valor TEXT NOT NULL);
+      INSERT INTO ajuste (clave, valor) SELECT 'instructivo_visto', '1' WHERE EXISTS (SELECT 1 FROM partida);`,
+  },
 ];
 
 /** La version mas alta que conoce este build. */

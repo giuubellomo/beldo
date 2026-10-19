@@ -24,17 +24,35 @@ export function maximoDeJugadores(plantillaId: string | null): number {
   return plantillaId === PLANTILLA_TRUCO ? EQUIPOS_DEL_TRUCO : MAXIMO_JUGADORES;
 }
 
+/** Lo que le puede faltar al armado para empezar (cambio 95), en el orden del sheet. */
+export type Faltante = 'nombre' | 'plantilla' | 'pocos' | 'demasiados';
+
 /**
- * RF-604: EMPEZAR se habilita con un nombre, una plantilla elegida y entre 2 y
- * `maximo` jugadores. El nombre es obligatorio desde el paso 7.1 (registro, cambio 71).
+ * RF-604: para empezar hace falta un nombre, una plantilla elegida y entre 2 y
+ * `maximo` jugadores. El nombre es obligatorio desde el paso 7.1 (registro,
+ * cambio 71). Devuelve lo que falta: vacio, se puede empezar.
  */
+export function faltantesParaEmpezar(
+  nombre: string,
+  hayPlantilla: boolean,
+  jugadores: number,
+  maximo: number = MAXIMO_JUGADORES,
+): Faltante[] {
+  const faltantes: Faltante[] = [];
+  if (nombreDePartida(nombre) === null) faltantes.push('nombre');
+  if (!hayPlantilla) faltantes.push('plantilla');
+  if (jugadores < MINIMO_JUGADORES) faltantes.push('pocos');
+  if (jugadores > maximo) faltantes.push('demasiados');
+  return faltantes;
+}
+
 export function puedeEmpezar(
   nombre: string,
   hayPlantilla: boolean,
   jugadores: number,
   maximo: number = MAXIMO_JUGADORES,
 ): boolean {
-  return nombreDePartida(nombre) !== null && hayPlantilla && jugadores >= MINIMO_JUGADORES && jugadores <= maximo;
+  return faltantesParaEmpezar(nombre, hayPlantilla, jugadores, maximo).length === 0;
 }
 
 export type ErrorNombre = 'vacio' | 'largo' | 'repetido';

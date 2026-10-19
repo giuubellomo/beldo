@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type Ref } from 'react';
 import {
   Animated,
   Easing,
@@ -33,6 +33,8 @@ interface Props {
   etiquetaCerrar?: string;
   /** Algo en lugar de la ✕, como el «Eliminar» de una ronda. */
   accionEncabezado?: ReactNode;
+  /** El scroll del contenido, para llevar la vista a una parte (el armado, cambio 95). */
+  scrollRef?: Ref<ScrollView>;
 }
 
 /** Cuanto hay que bajarlo, o que tan rapido, para que al soltarlo se cierre. */
@@ -46,7 +48,16 @@ const VELOCIDAD_PARA_CERRAR = 0.8;
  * Native: no hace falta una libreria. No se toma desde el contenido, para no
  * pelear con su scroll.
  */
-export function BottomSheet({ visible, onCerrar, titulo, children, pie, etiquetaCerrar, accionEncabezado }: Props) {
+export function BottomSheet({
+  visible,
+  onCerrar,
+  titulo,
+  children,
+  pie,
+  etiquetaCerrar,
+  accionEncabezado,
+  scrollRef,
+}: Props) {
   const { height } = useWindowDimensions();
   const { bottom } = useSafeAreaInsets();
   const progreso = useRef(new Animated.Value(0)).current;
@@ -132,6 +143,7 @@ export function BottomSheet({ visible, onCerrar, titulo, children, pie, etiqueta
           </View>
 
           <ScrollView
+            ref={scrollRef}
             style={styles.contenido}
             contentContainerStyle={styles.contenidoInterno}
             keyboardShouldPersistTaps="handled"

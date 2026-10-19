@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -14,6 +14,7 @@ import { esTruco } from '@/domain/truco';
 import type { Partida } from '@/domain/types';
 import { usePartidaEnCurso } from '@/hooks/usePartidaEnCurso';
 import { es } from '@/i18n/es';
+import * as ajustes from '@/repositories/ajustes';
 import * as partidas from '@/repositories/partidas';
 import { iconos } from '@/theme/iconos';
 import { colores, espacios, tipografia } from '@/theme/tokens';
@@ -36,6 +37,20 @@ export default function Home() {
   const [armando, setArmando] = useState(false);
 
   const abrirArmado = () => setArmando(true);
+
+  // Cambio 96: quien abre la app por primera vez ve el instructivo encima del Home.
+  useEffect(() => {
+    let vigente = true;
+    ajustes
+      .instructivoVisto()
+      .then((visto) => {
+        if (vigente && !visto) router.push('/instructivo');
+      })
+      .catch(() => undefined);
+    return () => {
+      vigente = false;
+    };
+  }, [router]);
 
   const nuevoJuego = () => {
     if (partida === null) {

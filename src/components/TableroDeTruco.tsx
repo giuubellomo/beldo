@@ -211,19 +211,19 @@ function Cuadrados({ puntos, alto }: { puntos: number; alto: number | undefined 
  * Un cuadradito de cinco con lineas: izquierda, arriba, derecha, abajo y la
  * diagonal. Con menos de cinco se dibujan solo los primeros palitos.
  */
-function Cuadradito({ palitos }: { palitos: number }) {
-  const diagonal = LADO * Math.SQRT2;
+function Cuadradito({ palitos, lado = LADO, grosor = GROSOR }: { palitos: number; lado?: number; grosor?: number }) {
+  const diagonal = lado * Math.SQRT2;
   const palos = [
-    styles.izquierda,
-    styles.arriba,
-    styles.derecha,
-    styles.abajo,
-    { width: diagonal, left: (LADO - diagonal) / 2, top: (LADO - GROSOR) / 2, height: GROSOR, transform: [{ rotate: '45deg' }] },
+    { left: 0, top: 0, bottom: 0, width: grosor },
+    { left: 0, right: 0, top: 0, height: grosor },
+    { right: 0, top: 0, bottom: 0, width: grosor },
+    { left: 0, right: 0, bottom: 0, height: grosor },
+    { width: diagonal, left: (lado - diagonal) / 2, top: (lado - grosor) / 2, height: grosor, transform: [{ rotate: '45deg' }] },
   ];
   return (
-    <View style={styles.cuadradito}>
+    <View style={{ width: lado, height: lado }}>
       {palos.slice(0, palitos).map((estilo, i) => (
-        <View key={i} style={[styles.palito, estilo]} />
+        <View key={i} style={[styles.palito, { borderRadius: grosor / 2 }, estilo]} />
       ))}
     </View>
   );
@@ -247,12 +247,7 @@ const styles = StyleSheet.create({
     gap: SEPARACION,
     width: POR_FILA * LADO + (POR_FILA - 1) * SEPARACION,
   },
-  cuadradito: { width: LADO, height: LADO },
-  palito: { position: 'absolute', backgroundColor: colores.tinta, borderRadius: GROSOR / 2 },
-  izquierda: { left: 0, top: 0, bottom: 0, width: GROSOR },
-  arriba: { left: 0, right: 0, top: 0, height: GROSOR },
-  derecha: { right: 0, top: 0, bottom: 0, width: GROSOR },
-  abajo: { left: 0, right: 0, bottom: 0, height: GROSOR },
+  palito: { position: 'absolute', backgroundColor: colores.tinta },
   total: { ...tipografia.subtitulo, color: colores.tinta, marginTop: espacios.xs },
   botones: {
     flexDirection: 'row',

@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import type { Regla, RondaDefinida } from '@/domain/types';
 import type { DatosRegla, DatosRonda } from '@/hooks/useBorradorDePlantilla';
 import { conSigno, es } from '@/i18n/es';
 import { iconos } from '@/theme/iconos';
-import { colores, espacios, radios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { espacios, radios, tipografia } from '@/theme/tokens';
 
 import { BottomSheet } from './BottomSheet';
 import { Boton } from './Boton';
@@ -56,6 +57,7 @@ export function SheetDeRonda({
   onGuardar,
   onBorrar,
 }: Props) {
+  const styles = useEstilos();
   const [objetivo, setObjetivo] = useState('');
   // reglaId -> puntaje con signo en esta ronda
   const [puntajes, setPuntajes] = useState<Record<string, number>>({});
@@ -186,6 +188,7 @@ export function SheetDeRonda({
 
 /** Una regla de todas las rondas, con lo que vale en esta. Mantiene el signo de la regla. */
 function FilaDeAjuste({ regla, valor, onCambiar }: { regla: Regla; valor: number; onCambiar: (valor: number) => void }) {
+  const styles = useEstilos();
   const signo = valor < 0 ? -1 : 1;
   const alcance = regla.alcance === 'todas' ? es.regla.enTodasLasRondas : es.regla.opcional;
   const ajustado = valor !== regla.puntajeBase;
@@ -216,6 +219,7 @@ function FilaDeAjuste({ regla, valor, onCambiar }: { regla: Regla; valor: number
 
 /** ● o ○ y el texto chico de abajo del titulo, como en la lista de reglas. */
 function Alcance({ alcance, texto }: { alcance: Regla['alcance']; texto: string }) {
+  const styles = useEstilos();
   return (
     <View style={styles.alcance}>
       <View style={[styles.punto, alcance === 'opcional' && styles.puntoVacio]} />
@@ -229,7 +233,7 @@ function aRegla(datos: DatosRegla): Regla {
   return { ...datos, id: datos.id ?? '', orden: 0 };
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   seccion: { gap: espacios.xs },
   fila: { flexDirection: 'row', alignItems: 'center', gap: espacios.sm },
   caja: {
@@ -247,4 +251,4 @@ const styles = StyleSheet.create({
   alcanceTexto: { ...tipografia.chico, color: colores.grisOscuro, flexShrink: 1 },
   agregar: { ...tipografia.cuerpoFuerte, color: colores.grisMedio, textAlign: 'center', paddingVertical: espacios.xs },
   ayuda: { ...tipografia.secundario, color: colores.grisMedio },
-});
+}));

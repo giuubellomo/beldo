@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { llegaronAlObjetivo } from '@/domain/objetivo';
 import { totalDeParticipante } from '@/domain/scoring';
@@ -7,7 +7,8 @@ import { cuadrados, malasYBuenas, puntosDeMalas, PUNTOS_POR_CUADRADO } from '@/d
 import type { Participante, Partida } from '@/domain/types';
 import { es } from '@/i18n/es';
 import { iconos } from '@/theme/iconos';
-import { AREA_TOCABLE_MINIMA, colores, espacios, numerales, radios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { AREA_TOCABLE_MINIMA, espacios, numerales, radios, tipografia } from '@/theme/tokens';
 
 import { Avatar } from './Avatar';
 import { AvisoDeObjetivo } from './AvisoDeObjetivo';
@@ -38,6 +39,7 @@ interface Props {
  * objetivo aparece el mismo aviso que en el popup de carga.
  */
 export function TableroDeTruco({ partida, onSumar, onFinalizar, onIrAlPodio }: Props) {
+  const styles = useEstilos();
   const [errorAlSumar, setErrorAlSumar] = useState(false);
   const aviso = useAvisoDeObjetivo(partida);
   const objetivo = partida.plantilla.puntajeObjetivo;
@@ -135,6 +137,7 @@ interface PropsColumna {
 }
 
 function Columna({ participante, total, objetivo, conLinea, onSumar }: PropsColumna) {
+  const styles = useEstilos();
   const { malas, buenas } = malasYBuenas(total, objetivo);
   const tope = puntosDeMalas(objetivo);
   // Cada mitad reserva el lugar de todos sus cuadraditos: las columnas quedan parejas.
@@ -198,6 +201,7 @@ function altoDe(puntos: number): number {
 }
 
 function Cuadrados({ puntos, alto }: { puntos: number; alto: number | undefined }) {
+  const styles = useEstilos();
   return (
     <View style={[styles.cuadrados, { minHeight: alto ?? LADO }]}>
       {cuadrados(puntos).map((palitos, i) => (
@@ -212,6 +216,7 @@ function Cuadrados({ puntos, alto }: { puntos: number; alto: number | undefined 
  * diagonal. Con menos de cinco se dibujan solo los primeros palitos.
  */
 function Cuadradito({ palitos, lado = LADO, grosor = GROSOR }: { palitos: number; lado?: number; grosor?: number }) {
+  const styles = useEstilos();
   const diagonal = lado * Math.SQRT2;
   const palos = [
     { left: 0, top: 0, bottom: 0, width: grosor },
@@ -229,7 +234,7 @@ function Cuadradito({ palitos, lado = LADO, grosor = GROSOR }: { palitos: number
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   contenido: { padding: espacios.xl, gap: espacios.xl },
   error: { ...tipografia.secundario, color: colores.tinta, textAlign: 'center' },
   fila: { flexDirection: 'row' },
@@ -269,4 +274,4 @@ const styles = StyleSheet.create({
   textoRestar: { color: colores.tinta },
   apagado: { opacity: 0.4 },
   presionado: { opacity: 0.7 },
-});
+}));

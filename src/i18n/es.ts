@@ -348,6 +348,26 @@ export const es = {
   /** Configuracion (paso 9.1, cambio 82). El tema claro/oscuro llega en fase 2. */
   config: {
     comoSeUsa: 'Cómo se usa',
+    // Cambio 109: la paleta y el modo
+    apariencia: 'Apariencia',
+    modo: 'Modo',
+    claro: 'Claro',
+    oscuro: 'Oscuro',
+    automatico: 'Automático',
+    ayudaAutomatico: 'Automático sigue lo que tenga puesto el teléfono.',
+    paleta: 'Paleta',
+    /** Los nombres de las paletas, por su id (`theme/paletas.ts`). */
+    paletas: {
+      monocromo: 'Monocromo',
+      pasteles: 'Pasteles',
+      basicos: 'Básicos',
+      neon: 'Neón',
+      beige: 'Beige',
+      violetas: 'Violetas',
+      azules: 'Azules',
+      verdes: 'Verdes',
+      rosados: 'Rosados',
+    },
     version: (version: string) => `BELIA · versión ${version}`,
     empresa: 'DeBello',
   },

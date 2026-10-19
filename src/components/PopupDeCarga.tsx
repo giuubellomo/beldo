@@ -6,7 +6,8 @@ import { puntajeDeReglaEnRonda, quienesTienenRegla, REGLA_CORTO, reglasDeLaRonda
 import type { Participante, Partida, Regla, RondaJugada } from '@/domain/types';
 import { conSigno, es } from '@/i18n/es';
 import { iconos } from '@/theme/iconos';
-import { AREA_TOCABLE_MINIMA, colores, espacios, radios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { AREA_TOCABLE_MINIMA, espacios, radios, tipografia } from '@/theme/tokens';
 
 import { Avatar } from './Avatar';
 import { AvisoDeObjetivo } from './AvisoDeObjetivo';
@@ -53,6 +54,7 @@ export function PopupDeCarga({
   onGuardar,
   onTerminar,
 }: Props) {
+  const styles = useEstilos();
   // Cada apertura arranca de lo que hay en la base, no de lo que quedo a medio
   // tocar la vez anterior (igual que PopupParticipante).
   const [apertura, setApertura] = useState(0);
@@ -130,6 +132,7 @@ interface PropsFormulario {
 }
 
 function Formulario({ partida, ronda, participante, onGuardar }: PropsFormulario) {
+  const styles = useEstilos();
   const { plantilla } = partida;
   const entrada = ronda.entradas.find((e) => e.participanteId === participante.id);
   const [puntos, setPuntos] = useState(entrada?.puntosManuales ?? 0);
@@ -219,6 +222,7 @@ interface PropsFila {
 
 /** ● regla de alcance todas, ○ opcional; lo que vale en esta ronda y el tilde. */
 function FilaDeRegla({ regla, puntos, marcada, otros, primera, onPress }: PropsFila) {
+  const styles = useEstilos();
   return (
     <Pressable
       accessibilityRole="checkbox"
@@ -253,7 +257,7 @@ function otrosQueLaTienen(regla: Regla, ronda: RondaJugada, partida: Partida, pa
     .map((id) => partida.participantes.find((p) => p.id === id)?.nombre ?? '');
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   encabezado: { flexDirection: 'row', alignItems: 'center', gap: espacios.sm },
   textos: { flex: 1, gap: 2 },
   nombre: { ...tipografia.tituloChico, color: colores.tinta },
@@ -285,4 +289,4 @@ const styles = StyleSheet.create({
   tildeTexto: { color: colores.fondo, fontSize: 15, fontWeight: '700' },
   error: { ...tipografia.secundario, color: colores.tinta, textAlign: 'center' },
   ayuda: { ...tipografia.chico, color: colores.grisOscuro, textAlign: 'center' },
-});
+}));

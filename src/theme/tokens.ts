@@ -1,8 +1,8 @@
 /**
  * Tokens del sistema de diseño (paso 3.1).
  *
- * El mockup es monocromo a proposito. Si mas adelante entra color, entra aca y en
- * ningun otro lado: ningun componente escribe un color, un tamaño o un radio suelto.
+ * Ningun componente escribe un color, un tamaño o un radio suelto. Los colores
+ * salen del tema (cambio 109); aca quedan tamaños, radios, espacios y tipografia.
  *
  * Colores, radios y el area tocable minima salen del mockup. La tipografia y el
  * espaciado se tomaron de las capturas del mockup en el paso 3.2 (docs/mockup/) y se
@@ -10,17 +10,8 @@
  */
 import type { TextStyle } from 'react-native';
 
-export const colores = {
-  tinta: '#1C1C1E',
-  /** Solo aparece como color de avatar, entre la tinta y el gris medio. */
-  grisOscuro: '#636366',
-  grisMedio: '#9A9AA0',
-  linea: '#D8D8DC',
-  superficie: '#F2F2F4',
-  fondo: '#FFFFFF',
-  /** Lo que oscurece la pantalla detras de un popup o un bottom sheet. */
-  velo: 'rgba(28, 28, 30, 0.45)',
-} as const;
+// Los colores ya no viven aca: los da el tema (`theme/tema.tsx`) segun la paleta
+// y el modo elegidos en Configuracion (cambio 109). Ver `theme/paletas.ts`.
 
 /** Los cinco radios del mockup. */
 export const radios = {
@@ -36,8 +27,6 @@ export const radios = {
   xl: 18,
 } as const;
 
-/** Colores que se pueden elegir para un avatar (RF-201), de oscuro a claro. */
-export const COLORES_AVATAR = [colores.tinta, colores.grisOscuro, colores.grisMedio, colores.linea] as const;
 
 /** Escala de 4. */
 export const espacios = {

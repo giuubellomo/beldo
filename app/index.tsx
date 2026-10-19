@@ -17,7 +17,8 @@ import { es } from '@/i18n/es';
 import * as ajustes from '@/repositories/ajustes';
 import * as partidas from '@/repositories/partidas';
 import { iconos } from '@/theme/iconos';
-import { colores, espacios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { espacios, tipografia } from '@/theme/tokens';
 
 /**
  * Home (paso 4.2, RF-101 a RF-105).
@@ -30,6 +31,7 @@ import { colores, espacios, tipografia } from '@/theme/tokens';
  * pide confirmacion para terminar la anterior. Nunca hay dos `en_curso`.
  */
 export default function Home() {
+  const styles = useEstilos();
   const router = useRouter();
   const { partida, cargando, mutar } = usePartidaEnCurso();
   const [confirmando, setConfirmando] = useState(false);
@@ -128,6 +130,7 @@ export default function Home() {
 
 /** RF-102: plantilla, cuantos juegan y en que ronda va. Abre la partida (7.1). */
 function ContinuarPartida({ partida }: { partida: Partida }) {
+  const styles = useEstilos();
   const router = useRouter();
   const resumen = es.home.resumenPartida(
     partida.plantilla.nombre,
@@ -151,6 +154,7 @@ function ContinuarPartida({ partida }: { partida: Partida }) {
 }
 
 function AccionDePie({ icono, texto, onPress }: { icono: string; texto: string; onPress: () => void }) {
+  const styles = useEstilos();
   return (
     <View style={styles.accionDePie}>
       <BotonIcono icono={icono} etiqueta={texto} tamano={48} onPress={onPress} />
@@ -159,7 +163,7 @@ function AccionDePie({ icono, texto, onPress }: { icono: string; texto: string; 
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   pantalla: { flex: 1, backgroundColor: colores.fondo, padding: espacios.xl },
   marca: { alignItems: 'center', gap: espacios.xxs, paddingTop: espacios.xxl },
   titulo: { ...tipografia.marca, color: colores.tinta },
@@ -185,4 +189,4 @@ const styles = StyleSheet.create({
   error: { ...tipografia.secundario, color: colores.tinta },
   botonesPopup: { flexDirection: 'row', gap: espacios.sm },
   boton: { flex: 1 },
-});
+}));

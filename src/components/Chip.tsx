@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { colores, espacios, numerales, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { espacios, numerales, tipografia } from '@/theme/tokens';
 
 interface Props {
   /** Sin texto queda solo el valor: la pastilla de puntaje de una regla (5.3). */
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function Chip({ texto, valor, punto, variante = 'relleno' }: Props) {
+  const styles = useEstilos();
   return (
     <View style={[styles.base, variante === 'relleno' ? styles.relleno : styles.borde]}>
       {punto !== undefined && <View style={[styles.punto, punto === 'vacio' && styles.puntoVacio]} />}
@@ -23,7 +25,7 @@ export function Chip({ texto, valor, punto, variante = 'relleno' }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   base: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -40,4 +42,4 @@ const styles = StyleSheet.create({
   puntoVacio: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colores.grisMedio },
   texto: { ...tipografia.chico, color: colores.grisOscuro },
   valor: { ...tipografia.chico, fontWeight: '700', color: colores.tinta },
-});
+}));

@@ -1,7 +1,9 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import type { AvatarTipo } from '@/domain/types';
-import { AREA_TOCABLE_MINIMA, colores } from '@/theme/tokens';
+import { colorDeAvatar, INICIAL_SOBRE_CLARO, INICIAL_SOBRE_OSCURO } from '@/theme/paletas';
+import { crearEstilos, useTema } from '@/theme/tema';
+import { AREA_TOCABLE_MINIMA } from '@/theme/tokens';
 
 export type TamanoAvatar = 32 | 40 | 60;
 
@@ -33,6 +35,7 @@ const ANILLO = 2;
  * pantalla lo saltea.
  */
 export function Avatar({ onPress, seleccionado = false, etiqueta, ...circulo }: Props) {
+  const styles = useEstilos();
   if (onPress === undefined) return <Circulo {...circulo} />;
 
   const lado = (circulo.tamano ?? 40) + 2 * (HUECO + ANILLO);
@@ -58,9 +61,13 @@ export function Avatar({ onPress, seleccionado = false, etiqueta, ...circulo }: 
 }
 
 function Circulo({ tipo, valor, nombre, tamano = 40 }: Pick<Props, 'tipo' | 'valor' | 'nombre' | 'tamano'>) {
+  const styles = useEstilos();
+  const { colores, coloresDeParticipantes } = useTema();
   const esIcono = tipo === 'icono';
-  const fondo = esIcono ? colores.fondo : valor;
-  const tinta = esIcono || !esOscuro(valor) ? colores.tinta : colores.fondo;
+  // Un color guardado como numero sigue a la paleta activa (cambio 109).
+  const fondo = esIcono ? colores.fondo : colorDeAvatar(valor, coloresDeParticipantes);
+  // La inicial, clara u oscura segun el circulo: no la tinta, que en modo oscuro es clara.
+  const tinta = esIcono ? colores.tinta : esOscuro(fondo) ? INICIAL_SOBRE_OSCURO : INICIAL_SOBRE_CLARO;
 
   return (
     <View
@@ -96,11 +103,11 @@ function esOscuro(hex: string): boolean {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.6;
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   circulo: { alignItems: 'center', justifyContent: 'center' },
   anillo: { alignItems: 'center', justifyContent: 'center', borderWidth: ANILLO, borderColor: 'transparent' },
   anilloSeleccionado: { borderColor: colores.tinta },
   presionado: { opacity: 0.7 },
   conBorde: { borderWidth: 1.5, borderColor: colores.tinta },
   texto: { fontWeight: '700' },
-});
+}));

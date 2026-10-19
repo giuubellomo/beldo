@@ -25,3 +25,20 @@ export function marcarInstructivoVisto(): Promise<void> {
     );
   });
 }
+
+/** Un ajuste guardado, o null si nunca se guardo (cambio 109: la paleta y el modo). */
+export function leerAjuste(clave: string): Promise<string | null> {
+  return leer(async (db) => {
+    const fila = await db.getFirstAsync<{ valor: string }>('SELECT valor FROM ajuste WHERE clave = ?', [clave]);
+    return fila?.valor ?? null;
+  });
+}
+
+export function guardarAjuste(clave: string, valor: string): Promise<void> {
+  return escribir(async (db) => {
+    await db.runAsync(
+      'INSERT INTO ajuste (clave, valor) VALUES (?, ?) ON CONFLICT (clave) DO UPDATE SET valor = excluded.valor',
+      [clave, valor],
+    );
+  });
+}

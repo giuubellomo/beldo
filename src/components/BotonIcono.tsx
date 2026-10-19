@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 
-import { AREA_TOCABLE_MINIMA, colores } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { AREA_TOCABLE_MINIMA } from '@/theme/tokens';
 
 interface Props {
   /** Un glifo de `theme/iconos`. */
@@ -15,6 +16,7 @@ interface Props {
 
 /** Boton redondo con borde: cerrar, atras, y los − / + del stepper. */
 export function BotonIcono({ icono, etiqueta, onPress, tamano = 36, deshabilitado = false }: Props) {
+  const styles = useEstilos();
   const margen = Math.max(0, (AREA_TOCABLE_MINIMA - tamano) / 2);
 
   return (
@@ -42,7 +44,7 @@ export function BotonIcono({ icono, etiqueta, onPress, tamano = 36, deshabilitad
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   circulo: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -54,4 +56,4 @@ const styles = StyleSheet.create({
   presionado: { backgroundColor: colores.superficie },
   icono: { color: colores.tinta, fontWeight: '500' },
   iconoDeshabilitado: { color: colores.linea },
-});
+}));

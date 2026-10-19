@@ -17,7 +17,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { iconos } from '@/theme/iconos';
-import { colores, espacios, radios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { espacios, radios, tipografia } from '@/theme/tokens';
 
 import { BotonIcono } from './BotonIcono';
 
@@ -58,6 +59,7 @@ export function BottomSheet({
   accionEncabezado,
   scrollRef,
 }: Props) {
+  const styles = useEstilos();
   const { height } = useWindowDimensions();
   const { bottom } = useSafeAreaInsets();
   const progreso = useRef(new Animated.Value(0)).current;
@@ -161,7 +163,7 @@ export function BottomSheet({
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   velo: { backgroundColor: colores.velo },
   abajo: { flex: 1, justifyContent: 'flex-end' },
   hoja: {
@@ -198,4 +200,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: espacios.xl,
     paddingTop: espacios.md,
   },
-});
+}));

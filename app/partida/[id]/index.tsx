@@ -19,7 +19,8 @@ import { usePartida } from '@/hooks/usePartida';
 import { es } from '@/i18n/es';
 import * as partidas from '@/repositories/partidas';
 import { iconos } from '@/theme/iconos';
-import { colores, espacios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { espacios, tipografia } from '@/theme/tokens';
 
 /**
  * Partida en curso (paso 7.1, RF-701, RF-702, RF-712): encabezado con el nombre,
@@ -31,6 +32,7 @@ import { colores, espacios, tipografia } from '@/theme/tokens';
  * confirmacion y finaliza la partida (8.1).
  */
 export default function PantallaDePartida() {
+  const styles = useEstilos();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { partida, mutar } = usePartida(id);
@@ -174,7 +176,7 @@ function rondasAMostrar(partida: Partida): RondaJugada[] {
   return [...rondas, { numero: rondas.length + 1, estado: 'bloqueada', entradas: [] }];
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   pantalla: { flex: 1, backgroundColor: colores.fondo },
   encabezado: {
     flexDirection: 'row',
@@ -199,4 +201,4 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colores.linea,
   },
-});
+}));

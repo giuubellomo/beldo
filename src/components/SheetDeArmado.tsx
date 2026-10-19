@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { AccessibilityInfo, Keyboard, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AccessibilityInfo, Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { MAXIMO_OBJETIVO, PASO_OBJETIVO } from '@/domain/objetivo';
 import { EQUIPOS_DEL_TRUCO, maximoDeJugadores, MINIMO_JUGADORES, type Faltante } from '@/domain/participantes';
@@ -10,7 +10,8 @@ import { useArmadoDePartida } from '@/hooks/useArmadoDePartida';
 import { usePlantillas } from '@/hooks/usePlantillas';
 import { es } from '@/i18n/es';
 import { iconoDePlantilla, iconos } from '@/theme/iconos';
-import { colores, espacios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { espacios, tipografia } from '@/theme/tokens';
 
 import { Avatar } from './Avatar';
 import { BottomSheet } from './BottomSheet';
@@ -40,6 +41,7 @@ interface Props {
  * Asume que no hay partida en curso: el Home ya resolvió ese caso (4.2, A-5).
  */
 export function SheetDeArmado({ visible, onCerrar }: Props) {
+  const styles = useEstilos();
   const { plantillas } = usePlantillas();
   const router = useRouter();
   const armado = useArmadoDePartida();
@@ -267,6 +269,7 @@ function mensajesDe(faltantes: Faltante[], jugadores: number, maximo: number): s
 
 /** De a dos por fila (RF-601). Si queda uno solo en la última, ocupa media fila. */
 function Grilla({ children }: { children: ReactNode[] }) {
+  const styles = useEstilos();
   const filas: ReactNode[][] = [];
   for (let i = 0; i < children.length; i += 2) filas.push(children.slice(i, i + 2));
 
@@ -286,7 +289,7 @@ function Grilla({ children }: { children: ReactNode[] }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   seccion: { gap: espacios.xs },
   pie: { gap: espacios.xs },
   error: { ...tipografia.secundario, color: colores.tinta, textAlign: 'center' },
@@ -315,4 +318,4 @@ const styles = StyleSheet.create({
   agregarDestacado: { borderColor: colores.tinta, borderWidth: 2 },
   agregarGlifo: { fontSize: 24, color: colores.grisMedio },
   agregarTexto: { ...tipografia.secundario, color: colores.grisMedio },
-});
+}));

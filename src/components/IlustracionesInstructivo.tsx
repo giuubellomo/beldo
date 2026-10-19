@@ -3,7 +3,9 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { conSigno, es } from '@/i18n/es';
 import { iconoDePlantilla, iconos } from '@/theme/iconos';
-import { COLORES_AVATAR, colores, espacios, numerales, radios, tipografia } from '@/theme/tokens';
+import { valorDeAvatar } from '@/theme/paletas';
+import { crearEstilos } from '@/theme/tema';
+import { espacios, numerales, radios, tipografia } from '@/theme/tokens';
 
 import { Avatar } from './Avatar';
 import { Chip } from './Chip';
@@ -20,11 +22,13 @@ export const ILUSTRACIONES = [Podio, Armado, Ronda, Plantilla];
 const ejemplo = es.instructivo.ejemplo;
 const [caro, juan, sofi] = ejemplo.jugadores.map((nombre, i) => ({
   nombre,
-  color: COLORES_AVATAR[i % COLORES_AVATAR.length]!,
+  // El numero de color: el avatar se pinta con la paleta activa, como los de verdad.
+  color: valorDeAvatar(i),
 }));
 
 /** Como una tarjeta de la app, para que se lea como «un pedazo de pantalla». */
 function Marco({ children }: { children: ReactNode }) {
+  const styles = useEstilos();
   return (
     <View style={styles.marco} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       {children}
@@ -33,11 +37,13 @@ function Marco({ children }: { children: ReactNode }) {
 }
 
 function Rotulo({ texto }: { texto: string }) {
+  const styles = useEstilos();
   return <Text style={styles.rotulo}>{texto}</Text>;
 }
 
 /** Bienvenida: el podio del final de una partida. */
 function Podio() {
+  const styles = useEstilos();
   const puestos = [
     { jugador: caro!, alto: 56, puesto: 2 },
     { jugador: sofi!, alto: 84, puesto: 1 },
@@ -63,6 +69,7 @@ function Podio() {
 
 /** Armar una partida: nombre, tipo de juego y participantes. */
 function Armado() {
+  const styles = useEstilos();
   return (
     <Marco>
       <Rotulo texto={es.nuevaPartida.nombre} />
@@ -95,6 +102,7 @@ function Armado() {
 
 /** Cargar los puntos: la ronda en juego, ordenada, con una casilla por cargar. */
 function Ronda() {
+  const styles = useEstilos();
   const filas = [
     { jugador: sofi!, puntaje: -20, total: -30 },
     { jugador: caro!, puntaje: -10, total: -15 },
@@ -126,6 +134,7 @@ function Ronda() {
 
 /** El editor de plantillas: reglas y objetivo. */
 function Plantilla() {
+  const styles = useEstilos();
   return (
     <Marco>
       <Rotulo texto={es.plantilla.reglas(ejemplo.reglas.length)} />
@@ -151,7 +160,7 @@ function Plantilla() {
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   marco: {
     width: 290,
     maxWidth: '100%',
@@ -261,4 +270,4 @@ const styles = StyleSheet.create({
   },
   textoCirculo: { fontSize: 16, color: colores.tinta },
   valorObjetivo: { ...tipografia.tituloChico, color: colores.tinta },
-});
+}));

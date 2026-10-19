@@ -29,7 +29,8 @@ import type { CriterioVictoria, ModoPuntos, Regla, RondaDefinida } from '@/domai
 import { useBorradorDePlantilla } from '@/hooks/useBorradorDePlantilla';
 import { es } from '@/i18n/es';
 import { ICONOS_PLANTILLA, iconoDePlantilla, iconos } from '@/theme/iconos';
-import { AREA_TOCABLE_MINIMA, colores, espacios, radios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { AREA_TOCABLE_MINIMA, espacios, radios, tipografia } from '@/theme/tokens';
 
 /** Largo del nombre de una plantilla: entra en la card de la grilla del armado (6.1). */
 const LARGO_MAXIMO_NOMBRE = 30;
@@ -44,6 +45,7 @@ const LARGO_MAXIMO_NOMBRE = 30;
  * abre igual, para ver lo que trae, y guardar crea una copia (cambio 64).
  */
 export default function EditorDePlantilla() {
+  const styles = useEstilos();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const {
@@ -330,6 +332,7 @@ export default function EditorDePlantilla() {
 
 /** Los iconos de plantilla del sistema de diseño, en cuadrados que se tocan. Elegir uno lo cierra. */
 function SelectorDeIcono({ valor, onCambiar }: { valor: string; onCambiar: (clave: string) => void }) {
+  const styles = useEstilos();
   return (
     <View accessibilityRole="radiogroup" style={styles.iconos}>
       {Object.keys(ICONOS_PLANTILLA).map((clave) => (
@@ -350,7 +353,7 @@ function SelectorDeIcono({ valor, onCambiar }: { valor: string; onCambiar: (clav
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   pantalla: { flex: 1, backgroundColor: colores.fondo },
   encabezado: {
     flexDirection: 'row',
@@ -393,4 +396,4 @@ const styles = StyleSheet.create({
   textoPopup: { ...tipografia.cuerpo, color: colores.tinta },
   botonesPopup: { flexDirection: 'row', gap: espacios.sm },
   boton: { flex: 1 },
-});
+}));

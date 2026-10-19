@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { es } from '@/i18n/es';
-import { colores, espacios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { espacios, tipografia } from '@/theme/tokens';
 
 import { Boton } from './Boton';
 
@@ -18,6 +19,7 @@ interface Props {
  * de un Popup: el del popup de carga, o el del tablero del Truco (cambio 93).
  */
 export function AvisoDeObjetivo({ onSeguir, onTerminar }: Props) {
+  const styles = useEstilos();
   const [terminando, setTerminando] = useState(false);
   const [errorAlTerminar, setErrorAlTerminar] = useState(false);
 
@@ -49,9 +51,9 @@ export function AvisoDeObjetivo({ onSeguir, onTerminar }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   texto: { ...tipografia.cuerpo, color: colores.tinta },
   error: { ...tipografia.secundario, color: colores.tinta, textAlign: 'center' },
   botones: { flexDirection: 'row', gap: espacios.sm },
   boton: { flex: 1 },
-});
+}));

@@ -19,7 +19,8 @@ import {
 import { nuevosConRonda } from '@/domain/objetivo';
 import type { Participante, Partida, RondaJugada } from '@/domain/types';
 import { conSigno, es } from '@/i18n/es';
-import { colores, espacios, numerales, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { espacios, numerales, tipografia } from '@/theme/tokens';
 
 import { Avatar } from './Avatar';
 import { AvisoDeObjetivo } from './AvisoDeObjetivo';
@@ -52,6 +53,7 @@ interface Props {
  * plantilla, y como el, si alguien llega al objetivo pasa al aviso.
  */
 export function PopupDeCanasta({ visible, partida, numeroRonda, participanteId, onCerrar, onGuardar, onTerminar }: Props) {
+  const styles = useEstilos();
   const [apertura, setApertura] = useState(0);
   const [llegaron, setLlegaron] = useState<string[] | null>(null);
   useEffect(() => {
@@ -126,6 +128,7 @@ interface PropsCalculadora {
 }
 
 function Calculadora({ partida, ronda, participante, onGuardar }: PropsCalculadora) {
+  const styles = useEstilos();
   const entrada = ronda.entradas.find((e) => e.participanteId === participante.id);
   // Corregir una mano arranca de lo que se habia cargado.
   const [mano, setMano] = useState<ManoDeCanasta>(manoDesdeMarcas(entrada?.marcas ?? {}));
@@ -236,6 +239,7 @@ function Calculadora({ partida, ronda, participante, onGuardar }: PropsCalculado
 
 /** El concepto a la izquierda, el control al medio y lo que suma a la derecha. */
 function Fila({ titulo, puntos, children }: { titulo: string; puntos: number; children: ReactNode }) {
+  const styles = useEstilos();
   return (
     <View style={styles.fila}>
       <Text style={[styles.titulo, styles.tituloFila]}>{titulo}</Text>
@@ -245,7 +249,7 @@ function Fila({ titulo, puntos, children }: { titulo: string; puntos: number; ch
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   encabezado: { flexDirection: 'row', alignItems: 'center', gap: espacios.sm },
   textos: { flex: 1, gap: 2 },
   nombre: { ...tipografia.tituloChico, color: colores.tinta },
@@ -268,4 +272,4 @@ const styles = StyleSheet.create({
   tituloTotal: { ...tipografia.cuerpoFuerte, color: colores.tinta },
   valorTotal: { ...tipografia.subtitulo, color: colores.tinta },
   error: { ...tipografia.secundario, color: colores.tinta, textAlign: 'center' },
-});
+}));

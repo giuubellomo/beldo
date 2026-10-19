@@ -19,7 +19,8 @@ import { Confeti } from '@/components/Confeti';
 import { rankear, type Puesto } from '@/domain/ranking';
 import type { Participante } from '@/domain/types';
 import { es } from '@/i18n/es';
-import { colores, espacios, numerales, radios, tipografia } from '@/theme/tokens';
+import { crearEstilos, useTema } from '@/theme/tema';
+import { espacios, numerales, radios, tipografia } from '@/theme/tokens';
 import { usePartida } from '@/hooks/usePartida';
 
 /** Alto del escalon segun la posicion: con empate, los que comparten puesto quedan a la misma altura. */
@@ -44,7 +45,6 @@ const PAUSA_ANTES_DEL_RESTO = 600;
 const ENTRE_APARICIONES = 450;
 const APARICION = 400;
 
-
 /**
  * Podio (paso 8.2, RF-801 a RF-804, mockup 6). Sale de `rankear()`: los tres
  * primeros del ranking en orden visual 2º–1º–3º y el resto en lista. Con dos
@@ -53,6 +53,7 @@ const APARICION = 400;
  * animado: escalones, el ganador con confeti, y el resto (cambio 105).
  */
 export default function PantallaDePodio() {
+  const styles = useEstilos();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { partida } = usePartida(id);
@@ -205,6 +206,12 @@ interface PropsEscalon extends PropsPuesto {
 
 /** Avatar, nombre y puntos arriba; el escalon con la posicion abajo. */
 function Escalon({ puesto, participante, escalon, persona, confeti, reflector }: PropsEscalon) {
+  const estilosEscalon = useEstilosEscalon();
+  // En modo oscuro el 1º no va en la tinta, que ahi es casi blanca, sino en el tono
+  // oscuro predominante de la paleta (cambio 110).
+  const { modo } = useTema();
+  const oscuro = modo === 'oscuro';
+  const styles = useEstilos();
   const { posicion, total } = puesto;
   const esPrimero = posicion === 1;
   const alto = ALTO_ESCALON[posicion] ?? ALTO_ESCALON[3]!;
@@ -239,11 +246,21 @@ function Escalon({ puesto, participante, escalon, persona, confeti, reflector }:
         <Animated.View
           style={[
             styles.escalon,
-            estilosEscalon[posicion] ?? estilosEscalon[3],
+            posicion === 1
+              ? oscuro
+                ? estilosEscalon.primeroOscuro
+                : estilosEscalon.primero
+              : posicion === 2
+                ? oscuro
+                  ? estilosEscalon.segundoOscuro
+                  : estilosEscalon.segundo
+                : oscuro
+                  ? estilosEscalon.terceroOscuro
+                  : estilosEscalon.tercero,
             { height: alto, opacity: escalon, transform: [{ translateY: subida }] },
           ]}
         >
-          <Text style={[styles.numero, esPrimero && styles.numeroPrimero]}>{posicion}</Text>
+          <Text style={[styles.numero, esPrimero && !oscuro && styles.numeroPrimero]}>{posicion}</Text>
         </Animated.View>
       </View>
     </View>
@@ -252,8 +269,7 @@ function Escalon({ puesto, participante, escalon, persona, confeti, reflector }:
 
 /** El circulo del reflector a escala 1, y lo que queda al final: el lugar del ganador. */
 const LADO_LUZ = 100;
-/** El reflector tapa del todo lo de abajo hasta que se cierra (cambio 107). */
-const COLOR_LUZ = colores.tinta;
+
 
 /**
  * Un circulo centrado en el lugar del ganador (cambio 105, solo el circulo
@@ -262,13 +278,17 @@ const COLOR_LUZ = colores.tinta;
  * `luz` lo prende y lo apaga.
  */
 function Reflector({ luz, cierre }: { luz: Animated.Value; cierre: Animated.Value }) {
+  const { modo } = useTema();
+  const styles = useEstilos();
   const { width, height } = useWindowDimensions();
   // Desde el ganador hasta la esquina mas lejana entra con la diagonal entera.
   const enorme = (2 * Math.hypot(width, height)) / LADO_LUZ;
   const escala = cierre.interpolate({ inputRange: [0, 1], outputRange: [enorme, 1] });
   return (
     <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.reflector}>
-      <Animated.View style={[styles.luz, { opacity: luz, transform: [{ scale: escala }] }]} />
+      <Animated.View
+        style={[styles.luz, modo === 'oscuro' && styles.luzOscura, { opacity: luz, transform: [{ scale: escala }] }]}
+      />
     </View>
   );
 }
@@ -280,6 +300,7 @@ interface PropsFila extends PropsPuesto {
 
 /** Mockup 6: la posicion en un circulo, avatar, nombre y los puntos a la derecha. */
 function FilaDelResto({ puesto, participante, aparicion }: PropsFila) {
+  const styles = useEstilos();
   return (
     <Animated.View
       accessible
@@ -302,7 +323,7 @@ function FilaDelResto({ puesto, participante, aparicion }: PropsFila) {
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   pantalla: { flex: 1, backgroundColor: colores.fondo },
   contenido: { padding: espacios.xl, gap: espacios.xl },
   encabezado: { alignItems: 'center', gap: espacios.xxs, paddingTop: espacios.md },
@@ -323,8 +344,11 @@ const styles = StyleSheet.create({
     width: LADO_LUZ,
     height: LADO_LUZ,
     borderRadius: LADO_LUZ / 2,
-    backgroundColor: COLOR_LUZ,
+    // Tapa del todo lo de abajo hasta que se cierra (cambio 107).
+    backgroundColor: colores.tinta,
   },
+  // En modo oscuro, el tono oscuro predominante de la paleta y no la tinta casi blanca (cambio 110).
+  luzOscura: { backgroundColor: colores.linea },
   persona: { alignItems: 'center', gap: espacios.xxs },
   // El escalon sube desde abajo de la base del podio, sin verse por debajo.
   escalonRecorte: { alignSelf: 'stretch', overflow: 'hidden', justifyContent: 'flex-end' },
@@ -365,11 +389,15 @@ const styles = StyleSheet.create({
     paddingTop: espacios.md,
     paddingBottom: espacios.md,
   },
-});
+}));
 
 /** 1º en tinta, 2º gris, 3º claro con borde, como el mockup. */
-const estilosEscalon = StyleSheet.create({
-  1: { backgroundColor: colores.tinta },
-  2: { backgroundColor: colores.linea },
-  3: { backgroundColor: colores.superficie, borderWidth: 1.5, borderBottomWidth: 0, borderColor: colores.linea },
-}) as Record<number, object>;
+const useEstilosEscalon = crearEstilos((colores) => ({
+  primero: { backgroundColor: colores.tinta },
+  // Modo oscuro (cambio 110): del tono predominante de la paleta hacia el fondo.
+  primeroOscuro: { backgroundColor: colores.linea },
+  segundoOscuro: { backgroundColor: colores.superficie },
+  terceroOscuro: { backgroundColor: colores.fondo, borderWidth: 1.5, borderBottomWidth: 0, borderColor: colores.linea },
+  segundo: { backgroundColor: colores.linea },
+  tercero: { backgroundColor: colores.superficie, borderWidth: 1.5, borderBottomWidth: 0, borderColor: colores.linea },
+}));

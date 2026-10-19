@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import type { AlcanceRegla, Regla } from '@/domain/types';
 import type { DatosRegla } from '@/hooks/useBorradorDePlantilla';
 import { conSigno, es } from '@/i18n/es';
 import { iconos } from '@/theme/iconos';
-import { colores, espacios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { espacios, tipografia } from '@/theme/tokens';
 
 import { BottomSheet } from './BottomSheet';
 import { Boton } from './Boton';
@@ -49,6 +50,7 @@ interface Props {
  * que es como lo pide A-2.
  */
 export function SheetDeRegla({ visible, onCerrar, regla, onGuardar, onBorrar, deUnaRonda = false }: Props) {
+  const styles = useEstilos();
   const [titulo, setTitulo] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [signo, setSigno] = useState<Signo>('suma');
@@ -189,6 +191,7 @@ function Opcion({
   elegida: boolean;
   onPress: () => void;
 }) {
+  const styles = useEstilos();
   return (
     <Card estado={elegida ? 'seleccionada' : 'normal'} onPress={onPress} etiqueta={`${titulo}. ${ayuda}`}>
       <Text style={styles.opcionTitulo}>{titulo}</Text>
@@ -197,9 +200,9 @@ function Opcion({
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   seccion: { gap: espacios.xs },
   ayuda: { ...tipografia.secundario, color: colores.grisMedio },
   opcionTitulo: { ...tipografia.cuerpoFuerte, color: colores.tinta },
   opcionAyuda: { ...tipografia.secundario, color: colores.grisMedio },
-});
+}));

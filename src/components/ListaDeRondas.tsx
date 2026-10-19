@@ -1,10 +1,11 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { puntajeDeReglaEnRonda, reglasDeLaRonda } from '@/domain/rondas';
 import type { Plantilla, RondaDefinida } from '@/domain/types';
 import { conSigno, es } from '@/i18n/es';
 import { iconos } from '@/theme/iconos';
-import { colores, espacios, numerales, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { espacios, numerales, tipografia } from '@/theme/tokens';
 
 import { BotonIcono } from './BotonIcono';
 import { Card } from './Card';
@@ -28,6 +29,7 @@ interface Props {
  * ronda aparecen unicamente en la suya. El orden, con flechas (cambio 58).
  */
 export function ListaDeRondas({ plantilla, onEditar, onAgregar, onMover }: Props) {
+  const styles = useEstilos();
   const { rondas } = plantilla;
 
   return (
@@ -62,6 +64,7 @@ interface FilaProps {
 }
 
 function FilaDeRonda({ ronda, plantilla, ultima, onEditar, onMover }: FilaProps) {
+  const styles = useEstilos();
   const titulo = ronda.objetivo ?? es.ronda.sinObjetivo;
 
   return (
@@ -114,7 +117,7 @@ function FilaDeRonda({ ronda, plantilla, ultima, onEditar, onMover }: FilaProps)
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   seccion: { gap: espacios.xs },
   ayuda: { ...tipografia.secundario, color: colores.grisMedio },
   agregar: { ...tipografia.cuerpoFuerte, color: colores.grisMedio, textAlign: 'center', paddingVertical: espacios.xs },
@@ -136,4 +139,4 @@ const styles = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: espacios.xxs },
   flechas: { gap: espacios.xxs },
   presionada: { opacity: 0.7 },
-});
+}));

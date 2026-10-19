@@ -3,7 +3,6 @@ import { useRef, useState } from 'react';
 import {
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   View,
   useWindowDimensions,
@@ -16,7 +15,8 @@ import { Boton } from '@/components/Boton';
 import { ILUSTRACIONES } from '@/components/IlustracionesInstructivo';
 import { es } from '@/i18n/es';
 import * as ajustes from '@/repositories/ajustes';
-import { AREA_TOCABLE_MINIMA, colores, espacios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { AREA_TOCABLE_MINIMA, espacios, tipografia } from '@/theme/tokens';
 
 /**
  * Instructivo (cambio 96): paginas que se pasan deslizando o con SIGUIENTE,
@@ -25,6 +25,7 @@ import { AREA_TOCABLE_MINIMA, colores, espacios, tipografia } from '@/theme/toke
  * o terminarlo lo marca como visto y vuelve a donde estaba.
  */
 export default function Instructivo() {
+  const styles = useEstilos();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const scroll = useRef<ScrollView>(null);
@@ -102,7 +103,7 @@ export default function Instructivo() {
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   pantalla: { flex: 1, backgroundColor: colores.fondo },
   arriba: {
     minHeight: AREA_TOCABLE_MINIMA,
@@ -121,4 +122,4 @@ const styles = StyleSheet.create({
   puntos: { flexDirection: 'row', justifyContent: 'center', gap: espacios.xs },
   punto: { width: 8, height: 8, borderRadius: 4, backgroundColor: colores.linea },
   puntoActual: { width: 20, backgroundColor: colores.tinta },
-});
+}));

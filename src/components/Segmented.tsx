@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
-import { AREA_TOCABLE_MINIMA, colores, espacios, radios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { AREA_TOCABLE_MINIMA, espacios, radios, tipografia } from '@/theme/tokens';
 
 export interface OpcionSegmented<T extends string> {
   valor: T;
@@ -19,6 +20,7 @@ interface Props<T extends string> {
 
 /** Una opcion de varias: «Se suman / Se restan», «Menos puntos / Más puntos». */
 export function Segmented<T extends string>({ opciones, seleccionado, onCambiar, compacto = false }: Props<T>) {
+  const styles = useEstilos();
   return (
     <View accessibilityRole="radiogroup" style={styles.contenedor}>
       {opciones.map((opcion) => {
@@ -43,7 +45,7 @@ export function Segmented<T extends string>({ opciones, seleccionado, onCambiar,
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   contenedor: {
     flexDirection: 'row',
     borderWidth: 1.5,
@@ -62,4 +64,4 @@ const styles = StyleSheet.create({
   opcionActiva: { backgroundColor: colores.tinta },
   texto: { ...tipografia.secundario, fontWeight: '600', color: colores.grisOscuro, textAlign: 'center' },
   textoActivo: { color: colores.fondo },
-});
+}));

@@ -14,7 +14,8 @@ import { mejoresDeRonda, puntajeCargado, totalHastaRonda } from '@/domain/scorin
 import type { Participante, Partida, Plantilla, RondaJugada } from '@/domain/types';
 import { conSigno, es } from '@/i18n/es';
 import { iconos } from '@/theme/iconos';
-import { AREA_TOCABLE_MINIMA, colores, espacios, numerales, radios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { AREA_TOCABLE_MINIMA, espacios, numerales, radios, tipografia } from '@/theme/tokens';
 
 import { Avatar } from './Avatar';
 import { Boton } from './Boton';
@@ -55,6 +56,7 @@ export function TarjetaDeRonda({
   expandida = false,
   onAlternar,
 }: Props) {
+  const styles = useEstilos();
   const titulo = es.ronda.titulo(ronda.numero);
   const completada = <Text style={styles.completada}>{`${iconos.tilde} ${es.partida.completada}`}</Text>;
 
@@ -139,6 +141,7 @@ interface PropsCabecera {
 
 /** Titulo, objetivo y lo que valen las reglas, con la linea que la separa de las filas. */
 function Cabecera({ ronda, partida, titulo, marca }: PropsCabecera) {
+  const styles = useEstilos();
   const reglas = reglasConPuntaje(ronda, partida.plantilla);
   return (
     <View style={styles.cabecera}>
@@ -213,6 +216,7 @@ function Deslizable({ children }: { children: ReactNode }) {
 
 /** «Falta asignar: Bajó primero» (RF-706), o nada. */
 function ReglasSinAsignar({ ronda, partida }: Pick<Props, 'ronda' | 'partida'>) {
+  const styles = useEstilos();
   const sinAsignar = reglasSinAsignar(ronda, partida.plantilla);
   if (sinAsignar.length === 0) return null;
   return <Text style={styles.faltante}>{es.partida.faltanReglas(sinAsignar.map((regla) => regla.titulo))}</Text>;
@@ -224,6 +228,7 @@ function ReglasSinAsignar({ ronda, partida }: Pick<Props, 'ronda' | 'partida'>) 
  * se ven en las casillas vacias.
  */
 function Siguiente({ ronda, partida, onSiguiente }: Required<Pick<Props, 'ronda' | 'partida' | 'onSiguiente'>>) {
+  const styles = useEstilos();
   const [avanzando, setAvanzando] = useState(false);
   const [errorAlAvanzar, setErrorAlAvanzar] = useState(false);
 
@@ -270,6 +275,7 @@ interface PropsFila {
  * Debajo del nombre, las reglas que se llevo en la ronda (cambio 77).
  */
 function FilaDeParticipante({ participante, puntaje, total, reglas, onPress }: PropsFila) {
+  const styles = useEstilos();
   const vacia = puntaje === null;
   const valor = vacia ? es.partida.sinCargar : conSigno(puntaje);
   const contenido = (
@@ -358,7 +364,7 @@ function resumenDeCerrada(ronda: RondaJugada, partida: Partida): string | null {
   return es.partida.mejorPuntaje(nombres, mejores.puntaje);
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   fila: { flexDirection: 'row', alignItems: 'center', gap: espacios.sm },
   textos: { flex: 1, gap: espacios.xxs },
   titulo: { ...tipografia.tituloChico, color: colores.tinta },
@@ -402,4 +408,4 @@ const styles = StyleSheet.create({
   puntajeVacio: { color: colores.grisMedio },
   // Ancho fijo: los totales quedan en columna aunque cambie la cantidad de digitos.
   total: { ...tipografia.secundario, color: colores.grisOscuro, minWidth: 44, textAlign: 'right' },
-});
+}));

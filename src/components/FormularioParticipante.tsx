@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { LARGO_MAXIMO_NOMBRE, normalizarNombre, validarNombre, type ErrorNombre } from '@/domain/participantes';
 import type { AvatarTipo, Participante } from '@/domain/types';
 import { es } from '@/i18n/es';
 import { ICONOS_AVATAR } from '@/theme/iconos';
-import { COLORES_AVATAR, colores, espacios, tipografia } from '@/theme/tokens';
+import { indiceDeAvatar, valorDeAvatar } from '@/theme/paletas';
+import { crearEstilos, useTema } from '@/theme/tema';
+import { espacios, tipografia } from '@/theme/tokens';
 
 import { Avatar } from './Avatar';
 import { Boton } from './Boton';
@@ -30,9 +32,12 @@ interface Props {
  * participante» del mockup.
  */
 export function FormularioParticipante({ nombresOcupados, textoConfirmar, onConfirmar, onCancelar, inicial }: Props) {
+  const styles = useEstilos();
+  // Los colores de la paleta activa; se guarda el numero, asi el avatar sigue a la paleta (cambio 109).
+  const { coloresDeParticipantes } = useTema();
   const [nombre, setNombre] = useState(inicial?.nombre ?? '');
   const [avatarTipo, setAvatarTipo] = useState<AvatarTipo>(inicial?.avatarTipo ?? 'color');
-  const [avatarValor, setAvatarValor] = useState<string>(inicial?.avatarValor ?? COLORES_AVATAR[0]);
+  const [avatarValor, setAvatarValor] = useState<string>(inicial?.avatarValor ?? valorDeAvatar(0));
   // El error del nombre aparece recien al intentar confirmar, y se va al escribir.
   const [errorNombre, setErrorNombre] = useState<ErrorNombre | null>(null);
   const [errorGuardar, setErrorGuardar] = useState(false);
@@ -81,15 +86,15 @@ export function FormularioParticipante({ nombresOcupados, textoConfirmar, onConf
       <View style={styles.seccion}>
         <Etiqueta texto={es.participante.iconoOColor} />
         <View accessibilityRole="radiogroup" style={styles.avatares}>
-          {COLORES_AVATAR.map((color, i) => (
+          {coloresDeParticipantes.map((color, i) => (
             <Avatar
-              key={color}
+              key={`${i}-${color}`}
               tipo="color"
-              valor={color}
+              valor={valorDeAvatar(i)}
               nombre={nombre}
               tamano={40}
-              onPress={() => elegir('color', color)}
-              seleccionado={avatarTipo === 'color' && avatarValor === color}
+              onPress={() => elegir('color', valorDeAvatar(i))}
+              seleccionado={avatarTipo === 'color' && indiceDeAvatar(avatarValor) === i}
               etiqueta={es.participante.colorNumero(i + 1)}
             />
           ))}
@@ -124,11 +129,11 @@ export function FormularioParticipante({ nombresOcupados, textoConfirmar, onConf
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   contenedor: { gap: espacios.lg },
   seccion: { gap: espacios.xs },
   avatares: { flexDirection: 'row', flexWrap: 'wrap', gap: espacios.xs },
   botones: { flexDirection: 'row', gap: espacios.sm },
   boton: { flex: 1 },
   error: { ...tipografia.chico, color: colores.tinta },
-});
+}));

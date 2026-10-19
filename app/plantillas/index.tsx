@@ -12,7 +12,8 @@ import { es } from '@/i18n/es';
 import * as plantillas from '@/repositories/plantillas';
 import type { PlantillaGuardada } from '@/repositories/plantillas';
 import { iconoDePlantilla, iconos } from '@/theme/iconos';
-import { AREA_TOCABLE_MINIMA, colores, espacios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { AREA_TOCABLE_MINIMA, espacios, tipografia } from '@/theme/tokens';
 
 /**
  * Lista de plantillas (paso 5.1, RF-303 a RF-305).
@@ -23,6 +24,7 @@ import { AREA_TOCABLE_MINIMA, colores, espacios, tipografia } from '@/theme/toke
  * para editarlas, y borrarlas pide confirmacion (RNF-6).
  */
 export default function ListaDePlantillas() {
+  const styles = useEstilos();
   const router = useRouter();
   const { plantillas: lista, cargando, mutar } = usePlantillas();
   const [aBorrar, setABorrar] = useState<PlantillaGuardada | null>(null);
@@ -99,6 +101,7 @@ interface FilaProps {
 }
 
 function FilaDePlantilla({ plantilla, onEditar, onDuplicar, onBorrar }: FilaProps) {
+  const styles = useEstilos();
   const resumen = es.plantillas.resumen(
     plantilla.reglas.length,
     plantilla.rondasIlimitadas ? null : plantilla.rondas.length,
@@ -140,6 +143,7 @@ function FilaDePlantilla({ plantilla, onEditar, onDuplicar, onBorrar }: FilaProp
 
 /** Accion de texto dentro de una card, con el area tocable de RNF-3. */
 function Accion({ texto, onPress }: { texto: string; onPress: () => void }) {
+  const styles = useEstilos();
   return (
     <Pressable
       accessibilityRole="button"
@@ -151,7 +155,7 @@ function Accion({ texto, onPress }: { texto: string; onPress: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   pantalla: { flex: 1, backgroundColor: colores.fondo },
   contenido: { padding: espacios.lg, gap: espacios.sm },
   nueva: { ...tipografia.cuerpoFuerte, color: colores.grisMedio, textAlign: 'center', paddingVertical: espacios.xs },
@@ -175,4 +179,4 @@ const styles = StyleSheet.create({
   error: { ...tipografia.secundario, color: colores.tinta },
   botonesPopup: { flexDirection: 'row', gap: espacios.sm },
   boton: { flex: 1 },
-});
+}));

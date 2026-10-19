@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import {
   ScrollView,
-  StyleSheet,
   Text,
   View,
   useWindowDimensions,
@@ -12,7 +11,8 @@ import {
 import type { Partida, RondaJugada } from '@/domain/types';
 import { es } from '@/i18n/es';
 import { iconos } from '@/theme/iconos';
-import { colores, espacios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { espacios, tipografia } from '@/theme/tokens';
 
 import { BotonIcono } from './BotonIcono';
 import { TarjetaDeRonda } from './TarjetaDeRonda';
@@ -39,6 +39,7 @@ interface Props {
  * participante (RF-709); las que faltan se ven bloqueadas.
  */
 export function PaginasDeRondas({ partida, rondas, onTocarParticipante, onSiguiente }: Props) {
+  const styles = useEstilos();
   const { width } = useWindowDimensions();
   const paginas = useRef<ScrollView>(null);
   const enCurso = rondas.findIndex((ronda) => ronda.estado === 'en_curso');
@@ -139,7 +140,7 @@ export function PaginasDeRondas({ partida, rondas, onTocarParticipante, onSiguie
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   contenedor: { flex: 1 },
   indicador: {
     flexDirection: 'row',
@@ -156,4 +157,4 @@ const styles = StyleSheet.create({
   puntoEnCurso: { borderColor: colores.tinta },
   puntoActual: { width: 18, backgroundColor: colores.tinta, borderColor: colores.tinta },
   pagina: { padding: espacios.xl },
-});
+}));

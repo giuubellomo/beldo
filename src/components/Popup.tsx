@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { iconos } from '@/theme/iconos';
-import { colores, espacios, radios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { espacios, radios, tipografia } from '@/theme/tokens';
 
 import { BotonIcono } from './BotonIcono';
 
@@ -21,6 +22,7 @@ interface Props {
 
 /** Tarjeta centrada sobre un velo oscuro. Para lo corto: alta de participante, carga de puntaje. */
 export function Popup({ visible, onCerrar, etiquetaCerrar, titulo, encabezado, children }: Props) {
+  const styles = useEstilos();
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCerrar} statusBarTranslucent>
       <View style={[StyleSheet.absoluteFill, styles.velo]}>
@@ -51,7 +53,7 @@ export function Popup({ visible, onCerrar, etiquetaCerrar, titulo, encabezado, c
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   velo: { backgroundColor: colores.velo },
   centro: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: espacios.xl },
   tarjeta: {
@@ -65,4 +67,4 @@ const styles = StyleSheet.create({
   encabezado: { flexDirection: 'row', alignItems: 'center', gap: espacios.sm },
   encabezadoContenido: { flex: 1 },
   titulo: { ...tipografia.tituloChico, color: colores.tinta },
-});
+}));

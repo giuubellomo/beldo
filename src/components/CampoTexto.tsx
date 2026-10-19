@@ -1,6 +1,7 @@
-import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { Text, TextInput, View, type TextInputProps } from 'react-native';
 
-import { AREA_TOCABLE_MINIMA, colores, espacios, radios, tipografia } from '@/theme/tokens';
+import { crearEstilos, useTema } from '@/theme/tema';
+import { AREA_TOCABLE_MINIMA, espacios, radios, tipografia } from '@/theme/tokens';
 
 import { Etiqueta } from './Etiqueta';
 
@@ -14,11 +15,15 @@ interface Props extends Omit<TextInputProps, 'value' | 'onChangeText' | 'style'>
 }
 
 export function CampoTexto({ valor, onCambiar, etiqueta, error, ...resto }: Props) {
+  const styles = useEstilos();
+  const { colores, modo } = useTema();
   return (
     <View style={styles.contenedor}>
       {etiqueta !== undefined && <Etiqueta texto={etiqueta} />}
       <TextInput
         {...resto}
+        // El teclado del telefono acompaña al modo (cambio 109).
+        keyboardAppearance={modo === 'oscuro' ? 'dark' : 'light'}
         accessibilityLabel={resto.accessibilityLabel ?? etiqueta}
         value={valor}
         onChangeText={onCambiar}
@@ -30,7 +35,7 @@ export function CampoTexto({ valor, onCambiar, etiqueta, error, ...resto }: Prop
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   contenedor: { gap: espacios.xs },
   campo: {
     ...tipografia.cuerpo,
@@ -45,4 +50,4 @@ const styles = StyleSheet.create({
   // Monocromo: el error se marca con el borde en tinta y el texto, no con rojo.
   campoConError: { borderColor: colores.tinta },
   error: { ...tipografia.chico, color: colores.tinta },
-});
+}));

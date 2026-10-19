@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Keyboard, Pressable, Text, TextInput, View } from 'react-native';
 
 import { iconos } from '@/theme/iconos';
-import { colores, espacios, numerales, radios, tipografia } from '@/theme/tokens';
+import { crearEstilos, useTema } from '@/theme/tema';
+import { espacios, numerales, radios, tipografia } from '@/theme/tokens';
 
 import { BotonIcono } from './BotonIcono';
 
@@ -48,6 +49,8 @@ export function Stepper({
   etiquetaEscribir,
   deshabilitado = false,
 }: Props) {
+  const styles = useEstilos();
+  const { colores, modo } = useTema();
   // null: se muestra el numero con su formato. Un texto: se esta escribiendo.
   const [escrito, setEscrito] = useState<string | null>(null);
   const boton = tamano === 'grande' ? 48 : tamano === 'mediano' ? 36 : 28;
@@ -91,6 +94,8 @@ export function Stepper({
       {escrito !== null ? (
         <TextInput
           autoFocus
+          // El teclado del telefono acompaña al modo (cambio 109).
+          keyboardAppearance={modo === 'oscuro' ? 'dark' : 'light'}
           value={escrito}
           placeholder="0"
           placeholderTextColor={colores.grisMedio}
@@ -131,7 +136,7 @@ export function Stepper({
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   fila: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   caja: {
     borderWidth: 1.5,
@@ -146,4 +151,4 @@ const styles = StyleSheet.create({
   apagado: { color: colores.grisMedio },
   // Subrayado mientras se escribe, para que se note que es un campo.
   escribiendo: { borderBottomWidth: 2, borderBottomColor: colores.tinta, paddingVertical: 0 },
-});
+}));

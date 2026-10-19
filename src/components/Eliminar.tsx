@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, Pressable, Text, View } from 'react-native';
 
 import { es } from '@/i18n/es';
-import { AREA_TOCABLE_MINIMA, colores, espacios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { AREA_TOCABLE_MINIMA, espacios, tipografia } from '@/theme/tokens';
 
 import { Boton } from './Boton';
 
@@ -20,6 +21,7 @@ interface Props {
  * del armado se saca sin preguntar: se recupera volviendolo a agregar.
  */
 export function Eliminar({ pregunta, onEliminar }: Props) {
+  const styles = useEstilos();
   const [confirmando, setConfirmando] = useState(false);
 
   if (!confirmando) {
@@ -55,11 +57,11 @@ export function Eliminar({ pregunta, onEliminar }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   eliminar: { minHeight: AREA_TOCABLE_MINIMA, alignItems: 'center', justifyContent: 'center' },
   eliminarTexto: { ...tipografia.secundario, fontWeight: '700', color: colores.tinta },
   confirmacion: { gap: espacios.sm },
   pregunta: { ...tipografia.cuerpo, color: colores.tinta, textAlign: 'center' },
   botones: { flexDirection: 'row', gap: espacios.sm },
   boton: { flex: 1 },
-});
+}));

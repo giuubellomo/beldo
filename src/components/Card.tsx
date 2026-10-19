@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { iconos } from '@/theme/iconos';
-import { colores, espacios, radios } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { espacios, radios } from '@/theme/tokens';
 
 export type EstadoCard = 'normal' | 'seleccionada' | 'activa' | 'suave' | 'punteada';
 
@@ -21,6 +22,8 @@ interface Props {
 }
 
 export function Card({ children, estado = 'normal', onPress, etiqueta, style }: Props) {
+  const styles = useEstilos();
+  const estilosPorEstado = useEstilosPorEstado();
   const cuerpo = [styles.base, estilosPorEstado[estado], style];
   const tilde = estado === 'seleccionada' && (
     <View style={styles.tilde}>
@@ -53,7 +56,7 @@ export function Card({ children, estado = 'normal', onPress, etiqueta, style }: 
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   base: {
     borderRadius: radios.lg,
     borderWidth: 1.5,
@@ -74,12 +77,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tildeTexto: { color: colores.fondo, fontSize: 12, fontWeight: '700' },
-});
+}));
 
-const estilosPorEstado = StyleSheet.create({
+const useEstilosPorEstado = crearEstilos((colores) => ({
   normal: {},
   seleccionada: { borderColor: colores.tinta, borderWidth: 2, backgroundColor: colores.superficie },
   activa: { borderColor: colores.tinta, borderWidth: 2 },
   suave: { backgroundColor: colores.superficie, borderColor: colores.superficie },
   punteada: { borderStyle: 'dashed' },
-});
+}));

@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { Animated, Easing, Platform, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Platform, View } from 'react-native';
 
-import { colores } from '@/theme/tokens';
+import { crearEstilos, useTema } from '@/theme/tema';
 
 const CANTIDAD = 150;
 /** Larga: el confeti cae lento mientras aparecen los demas (cambio 105). */
 const DURACION = 5000;
 /** La parte de la duracion en que sale disparado; el resto es la caida. */
 const EXPLOSION = 0.08;
-/** Monocromo, como el resto de la app: tinta y grises. */
-const TONOS = [colores.tinta, colores.grisOscuro, colores.grisMedio, colores.linea];
 
 interface Particula {
   /** Hacia donde sale y cuanto sube antes de caer. */
@@ -19,7 +17,8 @@ interface Particula {
   giro: number;
   ancho: number;
   alto: number;
-  tono: string;
+  /** Cual de los colores de los participantes: el confeti es de la paleta activa. */
+  tono: number;
   /** Algunas salen un poco despues: la explosion no es un solo golpe. */
   demora: number;
 }
@@ -38,6 +37,10 @@ interface Props {
  * Es decoracion: el lector de pantalla no lo ve y no se puede tocar.
  */
 export function Confeti({ activo }: Props) {
+  const styles = useEstilos();
+  // Los colores de los participantes: en las paletas de un tono son la tinta y los
+  // grises, y en las de varios colores, el confeti sale de colores (cambio 109).
+  const { coloresDeParticipantes: tonos } = useTema();
   const progreso = useRef(new Animated.Value(0)).current;
   const particulas = useMemo<Particula[]>(
     () =>
@@ -51,7 +54,7 @@ export function Confeti({ activo }: Props) {
           giro: (Math.random() - 0.5) * 1440,
           ancho: 5 + Math.random() * 4,
           alto: 8 + Math.random() * 6,
-          tono: TONOS[i % TONOS.length]!,
+          tono: i,
           demora: Math.random() * 0.05,
         };
       }),
@@ -97,7 +100,7 @@ export function Confeti({ activo }: Props) {
             key={i}
             style={[
               styles.papelito,
-              { width: p.ancho, height: p.alto, backgroundColor: p.tono, opacity },
+              { width: p.ancho, height: p.alto, backgroundColor: tonos[p.tono % tonos.length], opacity },
               { transform: [{ translateX }, { translateY }, { rotate }] },
             ]}
           />
@@ -107,8 +110,8 @@ export function Confeti({ activo }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   // Un punto sin tamaño: los papelitos salen de ahi.
   origen: { position: 'absolute', top: '50%', left: '50%', width: 0, height: 0, overflow: 'visible' },
   papelito: { position: 'absolute', borderRadius: 1.5 },
-});
+}));

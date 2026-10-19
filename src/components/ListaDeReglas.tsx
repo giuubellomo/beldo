@@ -1,9 +1,10 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import type { Regla } from '@/domain/types';
 import { conSigno, es } from '@/i18n/es';
 import { iconos } from '@/theme/iconos';
-import { AREA_TOCABLE_MINIMA, colores, espacios, tipografia } from '@/theme/tokens';
+import { crearEstilos } from '@/theme/tema';
+import { AREA_TOCABLE_MINIMA, espacios, tipografia } from '@/theme/tokens';
 
 import { BotonIcono } from './BotonIcono';
 import { Card } from './Card';
@@ -25,6 +26,7 @@ interface Props {
  * libreria de gestos que el plan no incluye (ver registro, cambio 58).
  */
 export function ListaDeReglas({ reglas, onEditar, onAgregar, onMover }: Props) {
+  const styles = useEstilos();
   return (
     <View style={styles.seccion}>
       <Etiqueta texto={es.plantilla.reglas(reglas.length)} />
@@ -56,6 +58,7 @@ interface FilaProps {
 }
 
 function FilaDeRegla({ regla, primera, ultima, onEditar, onMover }: FilaProps) {
+  const styles = useEstilos();
   return (
     // La card no es tocable entera: las flechas son botones y en web un boton no
     // puede ir adentro de otro (cambio 87). Se toca la parte de los textos.
@@ -101,7 +104,7 @@ function FilaDeRegla({ regla, primera, ultima, onEditar, onMover }: FilaProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   seccion: { gap: espacios.xs },
   agregar: { ...tipografia.cuerpoFuerte, color: colores.grisMedio, textAlign: 'center', paddingVertical: espacios.xs },
   fila: { flexDirection: 'row', alignItems: 'center', gap: espacios.sm },
@@ -111,4 +114,4 @@ const styles = StyleSheet.create({
   flechas: { gap: espacios.xxs },
   editar: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: espacios.sm, minHeight: AREA_TOCABLE_MINIMA },
   presionada: { opacity: 0.7 },
-});
+}));

@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 
-import { AREA_TOCABLE_MINIMA, colores, espacios, radios, tipografia } from '@/theme/tokens';
+import { crearEstilos, useTema } from '@/theme/tema';
+import { AREA_TOCABLE_MINIMA, espacios, radios, tipografia } from '@/theme/tokens';
 
 interface Props {
   titulo: string;
@@ -13,6 +14,8 @@ interface Props {
 
 /** Primario: lleno en tinta. Secundario: blanco con borde. Deshabilitado: gris, en cualquiera de los dos. */
 export function Boton({ titulo, onPress, variante = 'primario', deshabilitado = false, icono }: Props) {
+  const styles = useEstilos();
+  const { colores } = useTema();
   const primario = variante === 'primario';
 
   return (
@@ -41,7 +44,7 @@ export function Boton({ titulo, onPress, variante = 'primario', deshabilitado = 
   );
 }
 
-const styles = StyleSheet.create({
+const useEstilos = crearEstilos((colores) => ({
   base: {
     minHeight: Math.max(AREA_TOCABLE_MINIMA, 52),
     paddingHorizontal: espacios.lg,
@@ -57,4 +60,4 @@ const styles = StyleSheet.create({
   presionado: { opacity: 0.8 },
   texto: { ...tipografia.boton, textAlign: 'center' },
   textoDeshabilitado: { color: colores.grisMedio },
-});
+}));

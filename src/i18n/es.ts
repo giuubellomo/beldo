@@ -38,11 +38,12 @@ export const es = {
     escribirObjetivo: 'Escribir el objetivo',
     errorGuardar: 'No se pudo guardar. Probá de nuevo.',
     /** Web (cambio 87): la base solo se abre en una pestaña a la vez. */
-    abiertaEnOtraPestana: 'BELIA ya está abierta en otra pestaña. Cerrala y recargá esta.',
+    abiertaEnOtraPestana: 'Beldo ya está abierta en otra pestaña. Cerrala y recargá esta.',
   },
 
   home: {
-    titulo: 'BELIA',
+    // El nombre de la app: BELIA hasta el cambio 111, de Bellomo + Pardo
+    titulo: 'BELDO',
     subtitulo: 'Anotador de partidas',
     continuarPartida: 'Continuar partida',
     /** «Carioca · 4 jugadores · Ronda 2». El Truco no tiene rondas (cambio 93): «Truco · 2 jugadores». */
@@ -307,7 +308,7 @@ export const es = {
     paginas: [
       {
         titulo: '¡Chau papel y lápiz!',
-        texto: 'BELIA lleva la cuenta por vos: suma, resta y te muestra quién va ganando. Vos preocupate por jugar.',
+        texto: 'Beldo lleva la cuenta por vos: suma, resta y te muestra quién va ganando. Vos preocupate por jugar.',
       },
       {
         titulo: 'Armá la partida en un toque',
@@ -368,7 +369,7 @@ export const es = {
       verdes: 'Verdes',
       rosados: 'Rosados',
     },
-    version: (version: string) => `BELIA · versión ${version}`,
+    version: (version: string) => `Beldo · versión ${version}`,
     empresa: 'DeBello',
   },
 

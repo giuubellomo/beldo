@@ -10,6 +10,7 @@ import * as SQLite from 'expo-sqlite';
 import { migrar, versionActual, VERSION_OBJETIVO } from './migrations';
 import { esperarTurno } from './turno';
 
+// Del nombre anterior de la app: no se cambia, o la base nueva arrancaria vacia (cambio 111).
 export const NOMBRE_BASE = 'belia.db';
 
 let conexion: Promise<SQLite.SQLiteDatabase> | null = null;

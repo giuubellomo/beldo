@@ -7,6 +7,7 @@
  */
 
 import { nombreDePartida } from './partidas';
+import { PLANTILLA_TRUCO } from './truco';
 
 export const LARGO_MAXIMO_NOMBRE = 20;
 
@@ -15,17 +16,25 @@ export const MINIMO_JUGADORES = 2;
 /** RF-605. */
 export const MAXIMO_JUGADORES = 8;
 
+/** El Truco se juega entre dos equipos, que se cargan como participantes (cambio 94). */
+export const EQUIPOS_DEL_TRUCO = 2;
+
+/** Cuantos pueden jugar con esa plantilla: 8 (RF-605), o 2 en el Truco. */
+export function maximoDeJugadores(plantillaId: string | null): number {
+  return plantillaId === PLANTILLA_TRUCO ? EQUIPOS_DEL_TRUCO : MAXIMO_JUGADORES;
+}
+
 /**
- * RF-604: EMPEZAR se habilita con un nombre, una plantilla elegida y entre 2 y 8
- * jugadores. El nombre es obligatorio desde el paso 7.1 (registro, cambio 71).
+ * RF-604: EMPEZAR se habilita con un nombre, una plantilla elegida y entre 2 y
+ * `maximo` jugadores. El nombre es obligatorio desde el paso 7.1 (registro, cambio 71).
  */
-export function puedeEmpezar(nombre: string, hayPlantilla: boolean, jugadores: number): boolean {
-  return (
-    nombreDePartida(nombre) !== null &&
-    hayPlantilla &&
-    jugadores >= MINIMO_JUGADORES &&
-    jugadores <= MAXIMO_JUGADORES
-  );
+export function puedeEmpezar(
+  nombre: string,
+  hayPlantilla: boolean,
+  jugadores: number,
+  maximo: number = MAXIMO_JUGADORES,
+): boolean {
+  return nombreDePartida(nombre) !== null && hayPlantilla && jugadores >= MINIMO_JUGADORES && jugadores <= maximo;
 }
 
 export type ErrorNombre = 'vacio' | 'largo' | 'repetido';

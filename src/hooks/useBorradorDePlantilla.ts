@@ -266,6 +266,7 @@ function aBorrador(plantilla: PlantillaGuardada): DatosPlantilla {
     modoPuntos: plantilla.modoPuntos,
     criterioVictoria: plantilla.criterioVictoria,
     rondasIlimitadas: plantilla.rondasIlimitadas,
+    ...(plantilla.puntajeObjetivo !== undefined && { puntajeObjetivo: plantilla.puntajeObjetivo }),
     reglas: plantilla.reglas,
     rondas: plantilla.rondas,
   };

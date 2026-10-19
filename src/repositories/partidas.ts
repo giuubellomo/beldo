@@ -12,9 +12,10 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
 import { escribir, leer } from '@/db/client';
-import { MAXIMO_JUGADORES, MINIMO_JUGADORES } from '@/domain/participantes';
+import { maximoDeJugadores, MINIMO_JUGADORES } from '@/domain/participantes';
 import { nombreDePartida } from '@/domain/partidas';
 import { aplicarCarga, marcarRegla as marcarEnRonda, puedeCerrarRonda } from '@/domain/rondas';
+import { RONDA_DEL_TRUCO, sumarAlPuntaje } from '@/domain/truco';
 import type {
   AvatarTipo,
   EntradaRonda,
@@ -39,6 +40,11 @@ export interface DatosPartida {
    * guardan directo en `partida_participante`, con el id que traen.
    */
   participantes: Participante[];
+  /**
+   * El objetivo elegido al armar (cambio 92). Pisa al de la plantilla en el
+   * snapshot, y solo se usa si la plantilla tiene uno.
+   */
+  puntajeObjetivo?: number;
 }
 
 interface FilaPartida {
@@ -119,16 +125,21 @@ export function crear(datos: DatosPartida): Promise<Partida> {
     if (new Set(participantes.map((p) => p.id)).size !== participantes.length) {
       throw new Error('Un participante no puede estar dos veces en la misma partida');
     }
-    // RF-604 y RF-605: el armado ya no deja pasar otra cantidad.
-    if (participantes.length < MINIMO_JUGADORES || participantes.length > MAXIMO_JUGADORES) {
-      throw new Error(
-        `Una partida se juega entre ${MINIMO_JUGADORES} y ${MAXIMO_JUGADORES}, no con ${participantes.length}`,
-      );
+    // RF-604 y RF-605, y el Truco entre dos (cambio 94): el armado ya no deja pasar otra cantidad.
+    const maximo = maximoDeJugadores(datos.plantillaId);
+    if (participantes.length < MINIMO_JUGADORES || participantes.length > maximo) {
+      throw new Error(`Una partida se juega entre ${MINIMO_JUGADORES} y ${maximo}, no con ${participantes.length}`);
     }
 
     const guardada = await plantillaDesdeBase(db, datos.plantillaId);
     if (guardada === null) throw new Error(`No existe la plantilla ${datos.plantillaId}`);
     const plantilla = snapshotDe(guardada);
+    if (plantilla.puntajeObjetivo !== undefined && datos.puntajeObjetivo !== undefined) {
+      if (!(Number.isInteger(datos.puntajeObjetivo) && datos.puntajeObjetivo >= 1)) {
+        throw new Error(`El objetivo va entero y positivo, llego ${datos.puntajeObjetivo}`);
+      }
+      plantilla.puntajeObjetivo = datos.puntajeObjetivo;
+    }
 
     if (!plantilla.rondasIlimitadas && plantilla.rondas.length === 0) {
       throw new Error(`La plantilla ${plantilla.id} no tiene rondas y no es de rondas ilimitadas`);
@@ -296,6 +307,30 @@ export function guardarCarga(
 }
 
 /**
+ * Cambio 93. Un toque del tablero del Truco: suma `delta` (de −1 a +4) al puntaje
+ * de la unica ronda, sin bajar de 0. Lee y escribe en la misma transaccion: dos
+ * toques seguidos no se pisan aunque la pantalla todavia no se haya recargado.
+ */
+export function sumarPalitos(partidaId: string, participanteId: string, delta: number): Promise<void> {
+  if (!Number.isInteger(delta)) return Promise.reject(new Error(`Se suman palitos enteros, llego ${delta}`));
+
+  return escribir(async (db) => {
+    const partida = await partidaEditable(db, partidaId);
+    const rondaId = await rondaEditable(db, partida, RONDA_DEL_TRUCO);
+    exigirParticipante(partida, participanteId);
+
+    const ronda = partida.rondas.find((r) => r.numero === RONDA_DEL_TRUCO)!;
+    const actual = ronda.entradas.find((e) => e.participanteId === participanteId)?.puntosManuales ?? null;
+    await db.runAsync(
+      `INSERT INTO puntaje_ronda (ronda_partida_id, participante_id, puntos_manuales)
+       VALUES (?, ?, ?)
+       ON CONFLICT (ronda_partida_id, participante_id) DO UPDATE SET puntos_manuales = excluded.puntos_manuales`,
+      [rondaId, participanteId, sumarAlPuntaje(actual, delta)],
+    );
+  });
+}
+
+/**
  * Paso 7.5. Cierra la ronda en curso y abre la siguiente, en la misma transaccion:
  * separadas, un corte entre las dos dejaria la partida sin ronda en curso.
  * Si la plantilla es de rondas ilimitadas y no hay siguiente, la crea.
@@ -443,6 +478,7 @@ function snapshotDe(plantilla: Plantilla): Plantilla {
     modoPuntos: plantilla.modoPuntos,
     criterioVictoria: plantilla.criterioVictoria,
     rondasIlimitadas: plantilla.rondasIlimitadas,
+    puntajeObjetivo: plantilla.puntajeObjetivo,
     reglas: plantilla.reglas.map((regla) => ({
       id: regla.id,
       titulo: regla.titulo,

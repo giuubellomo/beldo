@@ -49,6 +49,12 @@ export interface Plantilla {
   modoPuntos: ModoPuntos;
   criterioVictoria: CriterioVictoria;
   rondasIlimitadas: boolean;
+  /**
+   * La partida termina cuando alguien llega a este total, y gana segun
+   * `criterioVictoria` (cambio 92). Positivo; sin el campo no hay objetivo. En
+   * el snapshot de una partida es el que se eligio al armarla.
+   */
+  puntajeObjetivo?: number;
   reglas: Regla[];
   rondas: RondaDefinida[];
 }

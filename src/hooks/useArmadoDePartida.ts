@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import { MAXIMO_JUGADORES, puedeEmpezar } from '@/domain/participantes';
+import { maximoDeJugadores, puedeEmpezar } from '@/domain/participantes';
 import { nombreDePartida } from '@/domain/partidas';
 import type { Partida, Participante } from '@/domain/types';
 import { nuevoId } from '@/repositories/comun';
@@ -16,10 +16,17 @@ export interface ArmadoDePartida {
   nombre: string;
   cambiarNombre: (texto: string) => void;
   plantillaId: string | null;
+  /**
+   * El objetivo de esta partida (cambio 92): arranca con el de la plantilla y se
+   * puede cambiar. null si la plantilla elegida no tiene.
+   */
+  objetivo: number | null;
+  cambiarObjetivo: (puntos: number) => void;
   /** En el orden en que se agregaron: es el orden de la partida. */
   jugadores: Participante[];
-  elegirPlantilla: (id: string) => void;
-  /** No hace nada si ya estan los ocho (RF-605). */
+  /** Con el objetivo que trae la plantilla, que pisa al que se habia elegido para otra. */
+  elegirPlantilla: (id: string, objetivo: number | undefined) => void;
+  /** No hace nada si ya estan los ocho (RF-605), o los dos del Truco (cambio 94). */
   agregarJugador: (datos: DatosJugador) => void;
   editarJugador: (id: string, datos: DatosJugador) => void;
   sacarJugador: (id: string) => void;
@@ -44,12 +51,15 @@ export interface ArmadoDePartida {
 export function useArmadoDePartida(): ArmadoDePartida {
   const [nombre, setNombre] = useState('');
   const [plantillaId, setPlantillaId] = useState<string | null>(null);
+  const [objetivo, setObjetivo] = useState<number | null>(null);
   const [jugadores, setJugadores] = useState<Participante[]>([]);
+  const maximo = maximoDeJugadores(plantillaId);
 
   // Estable: el sheet la llama en un efecto, cada vez que se abre.
   const reiniciar = useCallback(() => {
     setNombre('');
     setPlantillaId(null);
+    setObjetivo(null);
     setJugadores([]);
   }, []);
 
@@ -57,18 +67,23 @@ export function useArmadoDePartida(): ArmadoDePartida {
     nombre,
     cambiarNombre: setNombre,
     plantillaId,
+    objetivo,
+    cambiarObjetivo: setObjetivo,
     jugadores,
-    elegirPlantilla: setPlantillaId,
+    elegirPlantilla: (id, objetivoDeLaPlantilla) => {
+      setPlantillaId(id);
+      setObjetivo(objetivoDeLaPlantilla ?? null);
+    },
     agregarJugador: (datos) =>
       setJugadores((previos) =>
-        previos.length >= MAXIMO_JUGADORES ? previos : [...previos, { ...datos, id: nuevoId() }],
+        previos.length >= maximo ? previos : [...previos, { ...datos, id: nuevoId() }],
       ),
     editarJugador: (id, datos) =>
       setJugadores((previos) => previos.map((jugador) => (jugador.id === id ? { ...datos, id } : jugador))),
     sacarJugador: (id) => setJugadores((previos) => previos.filter((jugador) => jugador.id !== id)),
     reiniciar,
-    hayLugar: jugadores.length < MAXIMO_JUGADORES,
-    puedeEmpezar: puedeEmpezar(nombre, plantillaId !== null, jugadores.length),
+    hayLugar: jugadores.length < maximo,
+    puedeEmpezar: puedeEmpezar(nombre, plantillaId !== null, jugadores.length, maximo),
     empezar: () => {
       const limpio = nombreDePartida(nombre);
       if (limpio === null) return Promise.reject(new Error('La partida no tiene nombre'));
@@ -78,6 +93,7 @@ export function useArmadoDePartida(): ArmadoDePartida {
           nombre: limpio,
           plantillaId,
           participantes: jugadores,
+          ...(objetivo !== null && { puntajeObjetivo: objetivo }),
         }),
       );
     },

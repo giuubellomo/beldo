@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { nuevosEnElObjetivo } from '@/domain/objetivo';
 import { puntajeDeReglaEnRonda, quienesTienenRegla, REGLA_CORTO, reglasDeLaRonda } from '@/domain/rondas';
 import type { Participante, Partida, Regla, RondaJugada } from '@/domain/types';
 import { conSigno, es } from '@/i18n/es';
@@ -8,6 +9,7 @@ import { iconos } from '@/theme/iconos';
 import { AREA_TOCABLE_MINIMA, colores, espacios, radios, tipografia } from '@/theme/tokens';
 
 import { Avatar } from './Avatar';
+import { AvisoDeObjetivo } from './AvisoDeObjetivo';
 import { Boton } from './Boton';
 import { Chip } from './Chip';
 import { Etiqueta } from './Etiqueta';
@@ -28,6 +30,8 @@ interface Props {
   onCerrar: () => void;
   /** Escribe en la base. El popup se cierra solo si sale bien. */
   onGuardar: (puntos: number, reglasMarcadas: string[]) => Promise<void>;
+  /** TERMINAR PARTIDA del aviso de objetivo: finaliza y va al podio. Si falla, deja pasar el error. */
+  onTerminar: () => Promise<void>;
 }
 
 /**
@@ -35,17 +39,47 @@ interface Props {
  * stepper, siempre positivo (A-2) y con el signo de `modoPuntos` a la vista, y
  * las reglas de la ronda con lo que valen y un tilde. Nada se escribe hasta
  * GUARDAR: ahi va todo junto (`partidas.guardarCarga`).
+ *
+ * Si con lo guardado alguien llega al objetivo (cambio 92), el popup no se
+ * cierra: pasa a mostrar el aviso, con SEGUIR y TERMINAR PARTIDA. Es el mismo
+ * Modal y no uno nuevo porque en iOS uno no se abre mientras otro se cierra.
  */
-export function PopupDeCarga({ visible, partida, numeroRonda, participanteId, onCerrar, onGuardar }: Props) {
+export function PopupDeCarga({
+  visible,
+  partida,
+  numeroRonda,
+  participanteId,
+  onCerrar,
+  onGuardar,
+  onTerminar,
+}: Props) {
   // Cada apertura arranca de lo que hay en la base, no de lo que quedo a medio
   // tocar la vez anterior (igual que PopupParticipante).
   const [apertura, setApertura] = useState(0);
+  // Los nombres de quienes llegaron al objetivo con lo que se guardo: el aviso.
+  const [llegaron, setLlegaron] = useState<string[] | null>(null);
   useEffect(() => {
-    if (visible) setApertura((n) => n + 1);
+    if (!visible) return;
+    setApertura((n) => n + 1);
+    setLlegaron(null);
   }, [visible]);
 
   const participante = partida.participantes.find((p) => p.id === participanteId);
   const ronda = partida.rondas.find((r) => r.numero === numeroRonda);
+
+  const objetivo = partida.plantilla.puntajeObjetivo;
+  if (llegaron !== null && objetivo !== undefined) {
+    return (
+      <Popup
+        visible={visible}
+        onCerrar={onCerrar}
+        etiquetaCerrar={es.comun.cerrar}
+        titulo={es.carga.llegoAlObjetivo(llegaron, objetivo)}
+      >
+        <AvisoDeObjetivo onSeguir={onCerrar} onTerminar={onTerminar} />
+      </Popup>
+    );
+  }
 
   return (
     <Popup
@@ -73,8 +107,14 @@ export function PopupDeCarga({ visible, partida, numeroRonda, participanteId, on
           ronda={ronda}
           participante={participante}
           onGuardar={async (puntos, reglas) => {
+            // Antes de guardar: despues `partida` ya trae la carga y no hay con que comparar.
+            const nuevos = nuevosEnElObjetivo(partida, numeroRonda, participante.id, puntos, reglas);
             await onGuardar(puntos, reglas);
-            onCerrar();
+            if (nuevos.length === 0) {
+              onCerrar();
+              return;
+            }
+            setLlegaron(nuevos.map((id) => partida.participantes.find((p) => p.id === id)?.nombre ?? ''));
           }}
         />
       )}

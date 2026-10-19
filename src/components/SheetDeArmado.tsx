@@ -2,6 +2,8 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { MAXIMO_OBJETIVO, PASO_OBJETIVO } from '@/domain/objetivo';
+import { EQUIPOS_DEL_TRUCO, maximoDeJugadores } from '@/domain/participantes';
 import { LARGO_MAXIMO_NOMBRE_PARTIDA } from '@/domain/partidas';
 import type { Participante, Partida } from '@/domain/types';
 import { useArmadoDePartida } from '@/hooks/useArmadoDePartida';
@@ -17,6 +19,7 @@ import { CampoTexto } from './CampoTexto';
 import { Card } from './Card';
 import { Etiqueta } from './Etiqueta';
 import { PopupParticipante } from './PopupParticipante';
+import { Stepper } from './Stepper';
 
 const LADO_AVATAR = 60;
 
@@ -119,7 +122,7 @@ export function SheetDeArmado({ visible, onCerrar }: Props) {
               estado={plantilla.id === armado.plantillaId ? 'seleccionada' : 'normal'}
               onPress={() => {
                 Keyboard.dismiss();
-                armado.elegirPlantilla(plantilla.id);
+                armado.elegirPlantilla(plantilla.id, plantilla.puntajeObjetivo);
               }}
               etiqueta={plantilla.nombre}
               style={styles.plantilla}
@@ -135,8 +138,31 @@ export function SheetDeArmado({ visible, onCerrar }: Props) {
         </Grilla>
       </View>
 
+      {/* Cambio 92: solo si la plantilla tiene objetivo. Viene de ahi y se cambia para esta partida. */}
+      {armado.objetivo !== null && (
+        <View style={styles.seccion}>
+          <Etiqueta texto={es.nuevaPartida.objetivo} />
+          <Stepper
+            valor={armado.objetivo}
+            onCambiar={armado.cambiarObjetivo}
+            etiquetaRestar={es.comun.restar}
+            etiquetaSumar={es.comun.sumar}
+            paso={PASO_OBJETIVO}
+            minimo={1}
+            maximo={MAXIMO_OBJETIVO}
+            formato={es.comun.puntosSinSigno}
+            escribible
+            etiquetaEscribir={es.comun.escribirObjetivo}
+          />
+          <Text style={styles.ayuda}>{es.nuevaPartida.ayudaObjetivo}</Text>
+        </View>
+      )}
+
       <View style={styles.seccion}>
         <Etiqueta texto={es.nuevaPartida.participantes} />
+        {maximoDeJugadores(armado.plantillaId) === EQUIPOS_DEL_TRUCO && (
+          <Text style={styles.ayuda}>{es.nuevaPartida.dosEquipos}</Text>
+        )}
         <Grilla>
           {[
             ...armado.jugadores.map((jugador) => (
@@ -227,6 +253,7 @@ const styles = StyleSheet.create({
   seccion: { gap: espacios.xs },
   pie: { gap: espacios.xs },
   error: { ...tipografia.secundario, color: colores.tinta, textAlign: 'center' },
+  ayuda: { ...tipografia.secundario, color: colores.grisMedio },
   grilla: { gap: espacios.sm },
   fila: { flexDirection: 'row', gap: espacios.sm },
   celda: { flex: 1 },

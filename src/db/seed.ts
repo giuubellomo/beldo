@@ -11,6 +11,7 @@
  * `icono` es una clave. El set de iconos lo define el sistema de diseño (fase 3).
  */
 import { REGLA_CORTO } from '@/domain/rondas';
+import { PLANTILLA_TRUCO } from '@/domain/truco';
 import type { Plantilla } from '@/domain/types';
 import { asegurarPredefinidas } from '@/repositories/plantillas';
 
@@ -61,7 +62,23 @@ export const SIMPLE: Plantilla = {
   rondas: [],
 };
 
-export const PLANTILLAS_PREDEFINIDAS: Plantilla[] = [CARIOCA, SIMPLE];
+/**
+ * Cambio 93: dos bandos que se anotan de a palitos, a 30 por defecto (se cambia al
+ * armar). La pantalla de la partida lo reconoce por el id.
+ */
+export const TRUCO: Plantilla = {
+  id: PLANTILLA_TRUCO,
+  nombre: 'Truco',
+  icono: 'palitos',
+  modoPuntos: 'suma',
+  criterioVictoria: 'mayor',
+  rondasIlimitadas: true,
+  puntajeObjetivo: 30,
+  reglas: [],
+  rondas: [],
+};
+
+export const PLANTILLAS_PREDEFINIDAS: Plantilla[] = [CARIOCA, SIMPLE, TRUCO];
 
 /** Corre en cada arranque; solo inserta la primera vez. Devuelve cuantas inserto. */
 export function sembrar(): Promise<number> {

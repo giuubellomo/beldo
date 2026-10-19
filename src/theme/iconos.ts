@@ -34,6 +34,8 @@ export const ICONOS_AVATAR = ['★', `☀${TEXTO}`, `☾${TEXTO}`, `♠${TEXTO}`
 export const ICONOS_PLANTILLA: Record<string, string> = {
   cartas: `⚄${TEXTO}`,
   numeral: '±',
+  /** El cuadradito de cinco del Truco (cambio 93). */
+  palitos: '⊠',
 };
 
 /** El glifo de una clave de plantilla. Una clave desconocida no rompe: muestra un punto. */

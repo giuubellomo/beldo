@@ -55,6 +55,12 @@ export const MIGRACIONES: Migracion[] = [
     nombre: 'nombre de la Carioca',
     sql: `UPDATE plantilla SET nombre = 'Carioca' WHERE id = 'ef056daf-4cba-4370-81b9-0568005c3bcb';`,
   },
+  {
+    // Cambio 92: una plantilla puede jugarse hasta un puntaje. NULL = sin objetivo.
+    version: 5,
+    nombre: 'puntaje objetivo de la plantilla',
+    sql: 'ALTER TABLE plantilla ADD COLUMN puntaje_objetivo INTEGER CHECK (puntaje_objetivo >= 1);',
+  },
 ];
 
 /** La version mas alta que conoce este build. */

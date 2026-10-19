@@ -8,8 +8,10 @@ import { Boton } from '@/components/Boton';
 import { BotonIcono } from '@/components/BotonIcono';
 import { Popup } from '@/components/Popup';
 import { PopupDeCarga } from '@/components/PopupDeCarga';
+import { TableroDeTruco } from '@/components/TableroDeTruco';
 import { TarjetaDeRonda } from '@/components/TarjetaDeRonda';
 import { rondaEnCursoIncompleta } from '@/domain/rondas';
+import { esTruco } from '@/domain/truco';
 import type { Partida, RondaJugada } from '@/domain/types';
 import { usePartida } from '@/hooks/usePartida';
 import { es } from '@/i18n/es';
@@ -44,6 +46,10 @@ export default function PantallaDePartida() {
 
   if (partida === null) return null;
 
+  // RF-711: la partida ya no aparece en el Home. Replace: desde el podio, atras
+  // es el Home y no una partida finalizada.
+  const irAlPodio = () => router.replace({ pathname: '/partida/[id]/final', params: { id: partida.id } });
+
   const terminar = async () => {
     try {
       await mutar(() => partidas.finalizar(partida.id));
@@ -52,36 +58,49 @@ export default function PantallaDePartida() {
       return;
     }
     setConfirmando(false);
-    // RF-711: la partida ya no aparece en el Home. Replace: desde el podio, atras
-    // es el Home y no una partida finalizada.
-    router.replace({ pathname: '/partida/[id]/final', params: { id: partida.id } });
+    irAlPodio();
   };
+
+  const objetivo = partida.plantilla.puntajeObjetivo;
 
   return (
     <SafeAreaView style={styles.pantalla}>
       <View style={styles.encabezado}>
         <BotonIcono icono={iconos.atras} etiqueta={es.comun.volver} tamano={36} onPress={() => router.back()} />
-        <Text accessibilityRole="header" style={styles.titulo}>
-          {partida.nombre}
-        </Text>
+        <View style={styles.textosEncabezado}>
+          <Text accessibilityRole="header" style={styles.titulo}>
+            {partida.nombre}
+          </Text>
+          {objetivo !== undefined && <Text style={styles.hasta}>{es.partida.hasta(objetivo)}</Text>}
+        </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.rondas}>
-        {rondasAMostrar(partida).map((ronda) => (
-          <TarjetaDeRonda
-            key={ronda.numero}
-            ronda={ronda}
-            partida={partida}
-            onTocarParticipante={(participanteId) => {
-              setCarga({ numeroRonda: ronda.numero, participanteId });
-              setCargaAbierta(true);
-            }}
-            onSiguiente={() => mutar(() => partidas.cerrarRonda(partida.id, ronda.numero))}
-            expandida={expandida === ronda.numero}
-            onAlternar={() => setExpandida((actual) => (actual === ronda.numero ? null : ronda.numero))}
-          />
-        ))}
-      </ScrollView>
+      {/* Cambio 93: el Truco se anota de a palitos, sin rondas. */}
+      {esTruco(partida.plantilla) ? (
+        <TableroDeTruco
+          partida={partida}
+          onSumar={(participanteId, delta) => mutar(() => partidas.sumarPalitos(partida.id, participanteId, delta))}
+          onFinalizar={() => mutar(() => partidas.finalizar(partida.id))}
+          onIrAlPodio={irAlPodio}
+        />
+      ) : (
+        <ScrollView contentContainerStyle={styles.rondas}>
+          {rondasAMostrar(partida).map((ronda) => (
+            <TarjetaDeRonda
+              key={ronda.numero}
+              ronda={ronda}
+              partida={partida}
+              onTocarParticipante={(participanteId) => {
+                setCarga({ numeroRonda: ronda.numero, participanteId });
+                setCargaAbierta(true);
+              }}
+              onSiguiente={() => mutar(() => partidas.cerrarRonda(partida.id, ronda.numero))}
+              expandida={expandida === ronda.numero}
+              onAlternar={() => setExpandida((actual) => (actual === ronda.numero ? null : ronda.numero))}
+            />
+          ))}
+        </ScrollView>
+      )}
 
       <View style={styles.pie}>
         <Boton
@@ -101,7 +120,7 @@ export default function PantallaDePartida() {
         etiquetaCerrar={es.comun.cerrar}
         titulo={es.finalizar.confirmarTitulo}
       >
-        {rondaEnCursoIncompleta(partida) && <Text style={styles.textoPopup}>{es.finalizar.rondaIncompleta}</Text>}
+        {!esTruco(partida.plantilla) && rondaEnCursoIncompleta(partida) && <Text style={styles.textoPopup}>{es.finalizar.rondaIncompleta}</Text>}
         {errorAlTerminar && <Text style={styles.textoPopup}>{es.comun.errorGuardar}</Text>}
         <View style={styles.botonesPopup}>
           <View style={styles.boton}>
@@ -122,6 +141,12 @@ export default function PantallaDePartida() {
         onGuardar={(puntos, reglas) =>
           mutar(() => partidas.guardarCarga(partida.id, carga!.numeroRonda, carga!.participanteId, puntos, reglas))
         }
+        // El aviso de objetivo (cambio 92), sin la confirmacion de TERMINAR: ya es una.
+        onTerminar={async () => {
+          await mutar(() => partidas.finalizar(partida.id));
+          setCargaAbierta(false);
+          irAlPodio();
+        }}
       />
     </SafeAreaView>
   );
@@ -150,7 +175,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colores.linea,
   },
-  titulo: { ...tipografia.subtitulo, color: colores.tinta, flexShrink: 1 },
+  textosEncabezado: { flexShrink: 1 },
+  titulo: { ...tipografia.subtitulo, color: colores.tinta },
+  hasta: { ...tipografia.secundario, color: colores.grisOscuro },
   rondas: { padding: espacios.xl, gap: espacios.md },
   textoPopup: { ...tipografia.cuerpo, color: colores.tinta },
   botonesPopup: { flexDirection: 'row', gap: espacios.sm },

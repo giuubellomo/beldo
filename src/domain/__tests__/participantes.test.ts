@@ -1,4 +1,11 @@
-import { LARGO_MAXIMO_NOMBRE, normalizarNombre, puedeEmpezar, validarNombre } from '../participantes';
+import {
+  LARGO_MAXIMO_NOMBRE,
+  maximoDeJugadores,
+  normalizarNombre,
+  puedeEmpezar,
+  validarNombre,
+} from '../participantes';
+import { PLANTILLA_TRUCO } from '../truco';
 
 describe('validarNombre (RF-202)', () => {
   test('un nombre comun pasa', () => {
@@ -57,5 +64,18 @@ describe('puedeEmpezar (RF-604, RF-605)', () => {
   test('sin nombre no se empieza: vacio o solo espacios', () => {
     expect(puedeEmpezar('', true, 4)).toBe(false);
     expect(puedeEmpezar('   ', true, 4)).toBe(false);
+  });
+});
+
+describe('el Truco, entre dos equipos (cambio 94)', () => {
+  it('admite dos y las demas plantillas ocho', () => {
+    expect(maximoDeJugadores(PLANTILLA_TRUCO)).toBe(2);
+    expect(maximoDeJugadores('otra')).toBe(8);
+    expect(maximoDeJugadores(null)).toBe(8);
+  });
+
+  it('con tres no se puede empezar', () => {
+    expect(puedeEmpezar('Viernes', true, 2, 2)).toBe(true);
+    expect(puedeEmpezar('Viernes', true, 3, 2)).toBe(false);
   });
 });

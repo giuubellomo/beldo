@@ -40,6 +40,7 @@ interface FilaPlantilla {
   modo_puntos: ModoPuntos;
   criterio_victoria: CriterioVictoria;
   rondas_ilimitadas: number;
+  puntaje_objetivo: number | null;
 }
 
 interface FilaRegla {
@@ -108,7 +109,8 @@ export function actualizar(plantilla: Plantilla): Promise<PlantillaGuardada> {
 
     await db.runAsync(
       `UPDATE plantilla
-       SET nombre = ?, icono = ?, modo_puntos = ?, criterio_victoria = ?, rondas_ilimitadas = ?, editada_en = ?
+       SET nombre = ?, icono = ?, modo_puntos = ?, criterio_victoria = ?, rondas_ilimitadas = ?,
+           puntaje_objetivo = ?, editada_en = ?
        WHERE id = ?`,
       [
         plantilla.nombre,
@@ -116,6 +118,7 @@ export function actualizar(plantilla: Plantilla): Promise<PlantillaGuardada> {
         plantilla.modoPuntos,
         plantilla.criterioVictoria,
         plantilla.rondasIlimitadas ? 1 : 0,
+        plantilla.puntajeObjetivo ?? null,
         ahora(),
         plantilla.id,
       ],
@@ -149,6 +152,7 @@ export function duplicar(id: string, nombre: string): Promise<PlantillaGuardada>
       modoPuntos: origen.modoPuntos,
       criterioVictoria: origen.criterioVictoria,
       rondasIlimitadas: origen.rondasIlimitadas,
+      ...(origen.puntajeObjetivo !== undefined && { puntajeObjetivo: origen.puntajeObjetivo }),
       reglas: origen.reglas.map((regla) => ({ ...regla, id: reapuntar(regla.id) })),
       rondas: origen.rondas.map((ronda) => ({
         ...ronda,
@@ -194,7 +198,7 @@ async function plantillasDesdeBase(
   const filtro = [id, id];
 
   const plantillas = await db.getAllAsync<FilaPlantilla>(
-    `SELECT id, nombre, icono, es_predefinida, modo_puntos, criterio_victoria, rondas_ilimitadas
+    `SELECT id, nombre, icono, es_predefinida, modo_puntos, criterio_victoria, rondas_ilimitadas, puntaje_objetivo
      FROM plantilla WHERE (? IS NULL OR id = ?)
      ORDER BY es_predefinida DESC, creada_en, id`,
     filtro,
@@ -230,6 +234,7 @@ async function plantillasDesdeBase(
     modoPuntos: fila.modo_puntos,
     criterioVictoria: fila.criterio_victoria,
     rondasIlimitadas: fila.rondas_ilimitadas === 1,
+    ...(fila.puntaje_objetivo !== null && { puntajeObjetivo: fila.puntaje_objetivo }),
     esPredefinida: fila.es_predefinida === 1,
     reglas: (reglasPorPlantilla.get(fila.id) ?? []).map(aRegla),
     rondas: (rondasPorPlantilla.get(fila.id) ?? []).map((ronda) =>
@@ -271,8 +276,9 @@ async function insertar(
 
   await db.runAsync(
     `INSERT INTO plantilla
-       (id, nombre, icono, es_predefinida, modo_puntos, criterio_victoria, rondas_ilimitadas, creada_en, editada_en)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       (id, nombre, icono, es_predefinida, modo_puntos, criterio_victoria, rondas_ilimitadas, puntaje_objetivo,
+        creada_en, editada_en)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       id,
       datos.nombre,
@@ -281,6 +287,7 @@ async function insertar(
       datos.modoPuntos,
       datos.criterioVictoria,
       datos.rondasIlimitadas ? 1 : 0,
+      datos.puntajeObjetivo ?? null,
       momento,
       momento,
     ],

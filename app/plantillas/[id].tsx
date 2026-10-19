@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   BackHandler,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -22,6 +23,8 @@ import { Popup } from '@/components/Popup';
 import { Segmented } from '@/components/Segmented';
 import { SheetDeRegla } from '@/components/SheetDeRegla';
 import { SheetDeRonda } from '@/components/SheetDeRonda';
+import { Stepper } from '@/components/Stepper';
+import { MAXIMO_OBJETIVO, OBJETIVO_POR_DEFECTO, PASO_OBJETIVO } from '@/domain/objetivo';
 import type { CriterioVictoria, ModoPuntos, Regla, RondaDefinida } from '@/domain/types';
 import { useBorradorDePlantilla } from '@/hooks/useBorradorDePlantilla';
 import { es } from '@/i18n/es';
@@ -173,6 +176,39 @@ export default function EditorDePlantilla() {
             <Text style={styles.ayuda}>
               {es.plantilla.ayudaPuntos(borrador.modoPuntos, borrador.criterioVictoria)}
             </Text>
+          </View>
+
+          {/* Cambio 92: el objetivo es opcional y se puede cambiar al armar la partida. */}
+          <View style={styles.seccion}>
+            <Etiqueta texto={es.plantilla.objetivo} />
+            <Segmented<'sin' | 'con'>
+              opciones={[
+                { valor: 'sin', etiqueta: es.plantilla.sinObjetivo },
+                { valor: 'con', etiqueta: es.plantilla.conObjetivo },
+              ]}
+              seleccionado={borrador.puntajeObjetivo === undefined ? 'sin' : 'con'}
+              onCambiar={(opcion) => {
+                Keyboard.dismiss();
+                cambiar({ puntajeObjetivo: opcion === 'con' ? OBJETIVO_POR_DEFECTO : undefined });
+              }}
+            />
+            {borrador.puntajeObjetivo !== undefined && (
+              <>
+                <Stepper
+                  valor={borrador.puntajeObjetivo}
+                  onCambiar={(puntajeObjetivo) => cambiar({ puntajeObjetivo })}
+                  etiquetaRestar={es.comun.restar}
+                  etiquetaSumar={es.comun.sumar}
+                  paso={PASO_OBJETIVO}
+                  minimo={1}
+                  maximo={MAXIMO_OBJETIVO}
+                  formato={es.comun.puntosSinSigno}
+                  escribible
+                  etiquetaEscribir={es.comun.escribirObjetivo}
+                />
+                <Text style={styles.ayuda}>{es.plantilla.ayudaObjetivo(borrador.criterioVictoria)}</Text>
+              </>
+            )}
           </View>
 
           <ListaDeReglas

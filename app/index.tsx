@@ -10,6 +10,7 @@ import { Popup } from '@/components/Popup';
 import { SheetDeArmado } from '@/components/SheetDeArmado';
 import { Vacio } from '@/components/Vacio';
 import { numeroRondaEnCurso } from '@/domain/rondas';
+import { esTruco } from '@/domain/truco';
 import type { Partida } from '@/domain/types';
 import { usePartidaEnCurso } from '@/hooks/usePartidaEnCurso';
 import { es } from '@/i18n/es';
@@ -116,7 +117,7 @@ function ContinuarPartida({ partida }: { partida: Partida }) {
   const resumen = es.home.resumenPartida(
     partida.plantilla.nombre,
     partida.participantes.length,
-    numeroRondaEnCurso(partida.rondas),
+    esTruco(partida.plantilla) ? null : numeroRondaEnCurso(partida.rondas),
   );
 
   return (

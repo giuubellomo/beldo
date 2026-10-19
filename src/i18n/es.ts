@@ -32,6 +32,10 @@ export const es = {
     sumar: 'Sumar',
     restar: 'Restar',
     puntos: (n: number) => `${conSigno(n)} pts`,
+    /** Un puntaje sin signo: el objetivo, «500 pts». */
+    puntosSinSigno: (n: number) => `${n} pts`,
+    // Solo para el lector de pantalla
+    escribirObjetivo: 'Escribir el objetivo',
     errorGuardar: 'No se pudo guardar. Probá de nuevo.',
     /** Web (cambio 87): la base solo se abre en una pestaña a la vez. */
     abiertaEnOtraPestana: 'BELIA ya está abierta en otra pestaña. Cerrala y recargá esta.',
@@ -41,9 +45,9 @@ export const es = {
     titulo: 'BELIA',
     subtitulo: 'Anotador de partidas',
     continuarPartida: 'Continuar partida',
-    /** «Carioca · 4 jugadores · Ronda 2» */
-    resumenPartida: (plantilla: string, jugadores: number, ronda: number) =>
-      `${plantilla} · ${jugadores} jugadores · Ronda ${ronda}`,
+    /** «Carioca · 4 jugadores · Ronda 2». El Truco no tiene rondas (cambio 93): «Truco · 2 jugadores». */
+    resumenPartida: (plantilla: string, jugadores: number, ronda: number | null) =>
+      `${plantilla} · ${jugadores} jugadores` + (ronda === null ? '' : ` · Ronda ${ronda}`),
     nuevoJuego: 'Nuevo juego',
     sinPartidas: 'Todavía no tenés partidas guardadas',
     configuracion: 'Configuración',
@@ -62,6 +66,11 @@ export const es = {
     // El nombre se escribe al armar y es obligatorio (registro, cambio 71)
     nombre: 'Nombre de la partida',
     nombreEjemplo: 'Ej: Viernes de juegos',
+    // Solo si la plantilla tiene objetivo: viene de ahi y se puede cambiar (cambio 92)
+    objetivo: 'Objetivo',
+    ayudaObjetivo: 'La partida termina cuando alguien llega a este puntaje.',
+    // Cambio 94: los participantes del Truco son los dos equipos
+    dosEquipos: 'El Truco se juega entre dos equipos: cargá uno por participante.',
   },
 
   participante: {
@@ -120,6 +129,13 @@ export const es = {
      * Lo que queda configurado, en una linea. Las uniones son las del dominio
      * (`ModoPuntos`, `CriterioVictoria`); este archivo no importa nada.
      */
+    // Cambio 92: la partida termina cuando alguien llega al objetivo
+    objetivo: 'Objetivo',
+    sinObjetivo: 'Sin objetivo',
+    conObjetivo: 'Hasta un puntaje',
+    ayudaObjetivo: (criterio: 'menor' | 'mayor') =>
+      `La partida termina cuando alguien llega a este puntaje, y gana quien tenga ${criterio === 'menor' ? 'menos' : 'más'}. ` +
+      'Se puede cambiar al armar la partida.',
     ayudaPuntos: (modo: 'suma' | 'resta', criterio: 'menor' | 'mayor') =>
       `Los puntos de cada ronda ${modo === 'suma' ? 'se suman al' : 'se restan del'} total y gana ` +
       `quien termina con ${criterio === 'menor' ? 'menos' : 'más'}. Cada regla puede sumar o restar por separado.`,
@@ -203,6 +219,8 @@ export const es = {
     bloqueada: (anterior: number) => `Se habilita al terminar la Ronda ${anterior}`,
     siguiente: 'SIGUIENTE',
     terminarPartida: 'TERMINAR PARTIDA',
+    /** Debajo del nombre, si la partida tiene objetivo (cambio 92). */
+    hasta: (puntos: number) => `Hasta ${puntos} pts`,
     /** «Bajó primero: −20 pts»: lo que vale una regla en esa ronda. */
     reglaConPuntaje: (titulo: string, puntos: number) => `${titulo}: ${conSigno(puntos)} pts`,
     /** Resumen de una ronda cerrada sin objetivo ni reglas: «Mejor puntaje: Ana (+30)». */
@@ -227,6 +245,20 @@ export const es = {
     cortoSinPuntaje: 'El que corta no carga puntaje',
     // Solo para el lector de pantalla
     escribirPuntaje: 'Escribir el puntaje',
+    // El aviso al guardar el puntaje con el que alguien llega al objetivo (cambio 92)
+    llegoAlObjetivo: (nombres: string[], puntos: number) =>
+      `${nombres.join(' y ')} ${nombres.length > 1 ? 'llegaron' : 'llegó'} a ${puntos} pts`,
+    terminarOSeguir: '¿Terminás la partida? Si fue un error de carga, seguí y corregilo.',
+    seguir: 'Seguir',
+  },
+
+  /** El tablero del Truco (cambio 93): de a palitos, en malas y buenas. */
+  truco: {
+    // Solo para el lector de pantalla. En pantalla, malas y buenas las separa una linea (cambio 94)
+    sumar: (puntos: number, nombre: string) => `Sumar ${puntos} a ${nombre}`,
+    restar: (nombre: string) => `Restar 1 a ${nombre}`,
+    columna: (nombre: string, total: number, malas: number, buenas: number) =>
+      `${nombre}: ${total} pts, ${malas} malas y ${buenas} buenas`,
   },
 
   /** Configuracion (paso 9.1, cambio 82). El tema claro/oscuro llega en fase 2. */

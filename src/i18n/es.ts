@@ -124,6 +124,8 @@ export const es = {
     nombreEjemplo: 'Ej: Carioca',
     /** Lector de pantalla, en el selector de icono. `clave` es la del ícono: «cartas». */
     icono: (clave: string) => `Ícono ${clave}`,
+    /** Lector de pantalla, en el icono elegido que despliega los demás (cambio 98). */
+    cambiarIcono: (clave: string) => `Ícono ${clave}. Tocá para cambiarlo`,
     puntosDeCadaRonda: 'Los puntos de cada ronda',
     seSuman: 'Se suman',
     seRestan: 'Se restan',

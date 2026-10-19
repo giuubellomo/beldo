@@ -63,6 +63,8 @@ export default function EditorDePlantilla() {
   } = useBorradorDePlantilla(id);
 
   const [confirmandoSalida, setConfirmandoSalida] = useState(false);
+  // Cambio 98: se ve solo el icono elegido; tocarlo despliega las opciones.
+  const [eligiendoIcono, setEligiendoIcono] = useState(false);
   const [errorAlGuardar, setErrorAlGuardar] = useState(false);
   // null = sheet cerrado. Con una regla se edita esa; con 'nueva', se da de alta.
   const [reglaEnEdicion, setReglaEnEdicion] = useState<Regla | 'nueva' | null>(null);
@@ -135,7 +137,23 @@ export default function EditorDePlantilla() {
           <View style={styles.seccion}>
             <Etiqueta texto={es.plantilla.nombreEIcono} />
             <View style={styles.fila}>
-              <SelectorDeIcono valor={borrador.icono} onCambiar={(icono) => cambiar({ icono })} />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={es.plantilla.cambiarIcono(borrador.icono)}
+                accessibilityState={{ expanded: eligiendoIcono }}
+                onPress={() => {
+                  Keyboard.dismiss();
+                  setEligiendoIcono((abierto) => !abierto);
+                }}
+                style={[styles.cuadrado, styles.cuadradoElegido]}
+              >
+                <Text allowFontScaling={false} style={styles.glifo}>
+                  {iconoDePlantilla(borrador.icono)}
+                </Text>
+                <Text allowFontScaling={false} style={styles.desplegar}>
+                  {eligiendoIcono ? iconos.plegar : iconos.desplegar}
+                </Text>
+              </Pressable>
               <View style={styles.campo}>
                 <CampoTexto
                   valor={borrador.nombre}
@@ -149,6 +167,15 @@ export default function EditorDePlantilla() {
                 />
               </View>
             </View>
+            {eligiendoIcono && (
+              <SelectorDeIcono
+                valor={borrador.icono}
+                onCambiar={(icono) => {
+                  cambiar({ icono });
+                  setEligiendoIcono(false);
+                }}
+              />
+            )}
           </View>
 
           <View style={styles.seccion}>
@@ -301,7 +328,7 @@ export default function EditorDePlantilla() {
   );
 }
 
-/** Los iconos de plantilla del sistema de diseño, en cuadrados que se tocan. */
+/** Los iconos de plantilla del sistema de diseño, en cuadrados que se tocan. Elegir uno lo cierra. */
 function SelectorDeIcono({ valor, onCambiar }: { valor: string; onCambiar: (clave: string) => void }) {
   return (
     <View accessibilityRole="radiogroup" style={styles.iconos}>
@@ -339,7 +366,7 @@ const styles = StyleSheet.create({
   seccion: { gap: espacios.xs },
   fila: { flexDirection: 'row', alignItems: 'center', gap: espacios.sm },
   campo: { flex: 1 },
-  iconos: { flexDirection: 'row', gap: espacios.xs },
+  iconos: { flexDirection: 'row', flexWrap: 'wrap', gap: espacios.xs },
   cuadrado: {
     width: AREA_TOCABLE_MINIMA + 6,
     height: AREA_TOCABLE_MINIMA + 6,
@@ -351,6 +378,8 @@ const styles = StyleSheet.create({
   },
   cuadradoElegido: { borderColor: colores.tinta, borderWidth: 2, backgroundColor: colores.superficie },
   glifo: { fontSize: 22, color: colores.tinta },
+  // La flechita que avisa que el icono elegido se toca para cambiarlo.
+  desplegar: { position: 'absolute', right: 3, bottom: 1, fontSize: 10, color: colores.grisMedio },
   ayuda: { ...tipografia.secundario, color: colores.grisMedio },
   pie: {
     gap: espacios.xs,

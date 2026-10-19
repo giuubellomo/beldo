@@ -1,15 +1,15 @@
 import { useKeepAwake } from 'expo-keep-awake';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Boton } from '@/components/Boton';
 import { BotonIcono } from '@/components/BotonIcono';
+import { PaginasDeRondas } from '@/components/PaginasDeRondas';
 import { Popup } from '@/components/Popup';
 import { PopupDeCarga } from '@/components/PopupDeCarga';
 import { TableroDeTruco } from '@/components/TableroDeTruco';
-import { TarjetaDeRonda } from '@/components/TarjetaDeRonda';
 import { rondaEnCursoIncompleta } from '@/domain/rondas';
 import { esTruco } from '@/domain/truco';
 import type { Partida, RondaJugada } from '@/domain/types';
@@ -24,9 +24,9 @@ import { colores, espacios, tipografia } from '@/theme/tokens';
  * que se elige al armarla y aca no se edita (registro, cambio 71), las rondas y
  * TERMINAR PARTIDA fijo abajo. Todo sale de la base via `usePartida`: salir y
  * volver deja todo igual. Tocar a un participante abre el popup de carga (7.4)
- * y SIGUIENTE cierra la ronda en juego (7.5). Una ronda cerrada se toca para
- * expandirla y corregirla con el mismo popup (7.6). TERMINAR pide confirmacion
- * y finaliza la partida (8.1).
+ * y SIGUIENTE cierra la ronda en juego (7.5). Las rondas van una por pantalla
+ * (cambio 100): una cerrada se corrige con el mismo popup (7.6). TERMINAR pide
+ * confirmacion y finaliza la partida (8.1).
  */
 export default function PantallaDePartida() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -36,8 +36,6 @@ export default function PantallaDePartida() {
   // no se vacie mientras se desvanece al cerrarse.
   const [carga, setCarga] = useState<{ numeroRonda: number; participanteId: string } | null>(null);
   const [cargaAbierta, setCargaAbierta] = useState(false);
-  // La ronda cerrada que se esta corrigiendo (7.6): una a la vez.
-  const [expandida, setExpandida] = useState<number | null>(null);
   const [confirmando, setConfirmando] = useState(false);
   const [errorAlTerminar, setErrorAlTerminar] = useState(false);
 
@@ -84,22 +82,16 @@ export default function PantallaDePartida() {
           onIrAlPodio={irAlPodio}
         />
       ) : (
-        <ScrollView contentContainerStyle={styles.rondas}>
-          {rondasAMostrar(partida).map((ronda) => (
-            <TarjetaDeRonda
-              key={ronda.numero}
-              ronda={ronda}
-              partida={partida}
-              onTocarParticipante={(participanteId) => {
-                setCarga({ numeroRonda: ronda.numero, participanteId });
-                setCargaAbierta(true);
-              }}
-              onSiguiente={() => mutar(() => partidas.cerrarRonda(partida.id, ronda.numero))}
-              expandida={expandida === ronda.numero}
-              onAlternar={() => setExpandida((actual) => (actual === ronda.numero ? null : ronda.numero))}
-            />
-          ))}
-        </ScrollView>
+        // Cambio 100: una ronda por pantalla, y SIGUIENTE desliza a la nueva.
+        <PaginasDeRondas
+          partida={partida}
+          rondas={rondasAMostrar(partida)}
+          onTocarParticipante={(numeroRonda, participanteId) => {
+            setCarga({ numeroRonda, participanteId });
+            setCargaAbierta(true);
+          }}
+          onSiguiente={(numeroRonda) => mutar(() => partidas.cerrarRonda(partida.id, numeroRonda))}
+        />
       )}
 
       <View style={styles.pie}>
@@ -178,7 +170,6 @@ const styles = StyleSheet.create({
   textosEncabezado: { flexShrink: 1 },
   titulo: { ...tipografia.subtitulo, color: colores.tinta },
   hasta: { ...tipografia.secundario, color: colores.grisOscuro },
-  rondas: { padding: espacios.xl, gap: espacios.md },
   textoPopup: { ...tipografia.cuerpo, color: colores.tinta },
   botonesPopup: { flexDirection: 'row', gap: espacios.sm },
   boton: { flex: 1 },

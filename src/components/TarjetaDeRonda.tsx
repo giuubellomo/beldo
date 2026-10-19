@@ -58,17 +58,23 @@ export function TarjetaDeRonda({
   const completada = <Text style={styles.completada}>{`${iconos.tilde} ${es.partida.completada}`}</Text>;
 
   if (ronda.estado === 'cerrada' && expandida) {
+    const cabecera = <Cabecera ronda={ronda} partida={partida} titulo={titulo} marca={completada} />;
     return (
       <Card>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityState={{ expanded: true }}
-          accessibilityLabel={`${titulo}, ${es.partida.completada}`}
-          onPress={onAlternar}
-          style={({ pressed }) => [styles.cabeceraTocable, pressed && styles.presionada]}
-        >
-          <Cabecera ronda={ronda} partida={partida} titulo={titulo} marca={completada} />
-        </Pressable>
+        {/* Sin onAlternar no se pliega (una ronda por pantalla, cambio 100): la cabecera no se toca. */}
+        {onAlternar === undefined ? (
+          cabecera
+        ) : (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ expanded: true }}
+            accessibilityLabel={`${titulo}, ${es.partida.completada}`}
+            onPress={onAlternar}
+            style={({ pressed }) => [styles.cabeceraTocable, pressed && styles.presionada]}
+          >
+            {cabecera}
+          </Pressable>
+        )}
         <Filas ronda={ronda} partida={partida} onTocarParticipante={onTocarParticipante} />
         {/* Corregir no reabre la ronda: si quedo una regla sin asignar, solo se avisa. */}
         <View style={styles.corregida}>

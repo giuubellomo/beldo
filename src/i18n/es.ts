@@ -226,6 +226,11 @@ export const es = {
     bloqueada: (anterior: number) => `Se habilita al terminar la Ronda ${anterior}`,
     siguiente: 'SIGUIENTE',
     terminarPartida: 'TERMINAR PARTIDA',
+    /** Arriba de la ronda, una por pantalla (cambio 100): «Ronda 3 de 7». */
+    rondaDeTotal: (ronda: number, total: number) => `Ronda ${ronda} de ${total}`,
+    // Solo para el lector de pantalla: las flechas de al lado
+    rondaAnterior: 'Ronda anterior',
+    rondaSiguiente: 'Ronda siguiente',
     /** Debajo del nombre, si la partida tiene objetivo (cambio 92). */
     hasta: (puntos: number) => `Hasta ${puntos} pts`,
     /** «Bajó primero: −20 pts»: lo que vale una regla en esa ronda. */

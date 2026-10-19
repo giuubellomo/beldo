@@ -357,7 +357,6 @@ export const es = {
     confirmarTitulo: '¿Terminar la partida?',
     rondaIncompleta: 'La ronda en curso quedó incompleta.',
     partidaTerminada: 'Partida terminada',
-    restoDeParticipantes: 'Resto de participantes',
     // Solo para el lector de pantalla: «Puesto 1: Caro, −55 pts»
     puesto: (n: number) => `Puesto ${n}`,
     volverAlInicio: 'Volver al inicio',

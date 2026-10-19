@@ -10,6 +10,21 @@
  *
  * `icono` es una clave. El set de iconos lo define el sistema de diseño (fase 3).
  */
+import {
+  PLANTILLA_CANASTA,
+  PUNTOS_CIERRE,
+  PUNTOS_LIMPIA,
+  PUNTOS_SUCIA,
+  PUNTOS_TRES_NEGRO,
+  PUNTOS_TRES_ROJO,
+  REGLA_BAJADAS,
+  REGLA_CIERRE,
+  REGLA_EN_MANO,
+  REGLA_LIMPIAS,
+  REGLA_NEGROS,
+  REGLA_SUCIAS,
+  REGLA_TRESES,
+} from '@/domain/canasta';
 import { REGLA_CORTO } from '@/domain/rondas';
 import { PLANTILLA_TRUCO } from '@/domain/truco';
 import type { Plantilla } from '@/domain/types';
@@ -78,7 +93,43 @@ export const TRUCO: Plantilla = {
   rondas: [],
 };
 
-export const PLANTILLAS_PREDEFINIDAS: Plantilla[] = [CARIOCA, SIMPLE, TRUCO];
+/**
+ * Cambio 101: a 5000, de 2 a 6. Cada mano se carga con la calculadora de la
+ * partida, que guarda un concepto por regla con sus puntos: el puntaje base es
+ * lo que vale uno (una canasta, un tres rojo, un punto de cartas). Son opcionales
+ * para que la tarjeta de la ronda no las liste.
+ */
+const reglaDeCanasta = (id: string, titulo: string, puntajeBase: number, orden: number) => ({
+  id,
+  titulo,
+  puntajeBase,
+  alcance: 'opcional' as const,
+  asignacionUnica: id === REGLA_CIERRE,
+  orden,
+});
+
+export const CANASTA: Plantilla = {
+  id: PLANTILLA_CANASTA,
+  nombre: 'Canasta',
+  icono: 'canasta',
+  modoPuntos: 'suma',
+  criterioVictoria: 'mayor',
+  rondasIlimitadas: true,
+  puntajeObjetivo: 5000,
+  reglas: [
+    // En el orden de la calculadora (cambio 102). Si cambia, ver la migracion 7.
+    reglaDeCanasta(REGLA_CIERRE, 'Cierre', PUNTOS_CIERRE, 0),
+    reglaDeCanasta(REGLA_LIMPIAS, 'Canasta limpia', PUNTOS_LIMPIA, 1),
+    reglaDeCanasta(REGLA_SUCIAS, 'Canasta sucia', PUNTOS_SUCIA, 2),
+    reglaDeCanasta(REGLA_TRESES, 'Tres rojo', PUNTOS_TRES_ROJO, 3),
+    reglaDeCanasta(REGLA_NEGROS, 'Tres negro', PUNTOS_TRES_NEGRO, 4),
+    reglaDeCanasta(REGLA_BAJADAS, 'Cartas bajadas', 1, 5),
+    reglaDeCanasta(REGLA_EN_MANO, 'Cartas en la mano', -1, 6),
+  ],
+  rondas: [],
+};
+
+export const PLANTILLAS_PREDEFINIDAS: Plantilla[] = [CARIOCA, SIMPLE, TRUCO, CANASTA];
 
 /** Corre en cada arranque; solo inserta la primera vez. Devuelve cuantas inserto. */
 export function sembrar(): Promise<number> {

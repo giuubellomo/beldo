@@ -70,6 +70,27 @@ export const MIGRACIONES: Migracion[] = [
     sql: `CREATE TABLE ajuste (clave TEXT PRIMARY KEY, valor TEXT NOT NULL);
       INSERT INTO ajuste (clave, valor) SELECT 'instructivo_visto', '1' WHERE EXISTS (SELECT 1 FROM partida);`,
   },
+  {
+    // Cambio 102: la Canasta predefinida suma la regla «Tres negro» y pasa el
+    // Cierre adelante, como la calculadora. La semilla solo inserta la primera
+    // vez: aca se corrige la que ya estaba guardada. En una base sin la Canasta
+    // no hace nada, y despues la semilla la inserta ya con todo.
+    version: 7,
+    nombre: 'treses negros en la Canasta',
+    sql: `INSERT INTO regla_plantilla
+        (id, plantilla_id, titulo, descripcion, puntaje_base, alcance, asignacion_unica, orden, solo_en_ronda)
+      SELECT 'fe4ea74f-29e8-4c87-bfe9-7528a9f4c732', id, 'Tres negro', NULL, -100, 'opcional', 0, 4, NULL
+      FROM plantilla WHERE id = '03fac88a-ed58-47bb-95d8-0b758825d952';
+      UPDATE regla_plantilla SET orden = CASE id
+        WHEN '9c6153a6-d07f-489d-b670-84319c2e8d3e' THEN 0
+        WHEN '3c6f8f41-86ee-4055-8c03-7e53a4008363' THEN 1
+        WHEN '02934b9a-6818-4598-9018-a8f534c7cfb1' THEN 2
+        WHEN '62a7359c-72c5-41ff-a84c-4a3c2fde4644' THEN 3
+        WHEN 'f3c7e894-0378-4df4-b477-5499f1958931' THEN 5
+        WHEN '2a5c33ce-66a5-4286-8ee5-7207a987bd61' THEN 6
+        ELSE orden END
+      WHERE plantilla_id = '03fac88a-ed58-47bb-95d8-0b758825d952';`,
+  },
 ];
 
 /** La version mas alta que conoce este build. */

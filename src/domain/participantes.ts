@@ -7,6 +7,7 @@
  */
 
 import { nombreDePartida } from './partidas';
+import { PLANTILLA_CANASTA } from './canasta';
 import { PLANTILLA_TRUCO } from './truco';
 
 export const LARGO_MAXIMO_NOMBRE = 20;
@@ -19,9 +20,14 @@ export const MAXIMO_JUGADORES = 8;
 /** El Truco se juega entre dos equipos, que se cargan como participantes (cambio 94). */
 export const EQUIPOS_DEL_TRUCO = 2;
 
-/** Cuantos pueden jugar con esa plantilla: 8 (RF-605), o 2 en el Truco. */
+/** La Canasta, de 2 a 6: cada participante es un jugador o una pareja (cambio 101). */
+export const JUGADORES_DE_CANASTA = 6;
+
+/** Cuantos pueden jugar con esa plantilla: 8 (RF-605), 2 en el Truco, 6 en la Canasta. */
 export function maximoDeJugadores(plantillaId: string | null): number {
-  return plantillaId === PLANTILLA_TRUCO ? EQUIPOS_DEL_TRUCO : MAXIMO_JUGADORES;
+  if (plantillaId === PLANTILLA_TRUCO) return EQUIPOS_DEL_TRUCO;
+  if (plantillaId === PLANTILLA_CANASTA) return JUGADORES_DE_CANASTA;
+  return MAXIMO_JUGADORES;
 }
 
 /** Lo que le puede faltar al armado para empezar (cambio 95), en el orden del sheet. */

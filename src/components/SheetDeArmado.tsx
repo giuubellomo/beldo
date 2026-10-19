@@ -69,7 +69,7 @@ export function SheetDeArmado({ visible, onCerrar }: Props) {
   const mensajeDeJugadores = falta('pocos')
     ? es.nuevaPartida.faltanJugadores(MINIMO_JUGADORES - armado.jugadores.length)
     : falta('demasiados')
-      ? es.nuevaPartida.sobranJugadores
+      ? es.nuevaPartida.sobranJugadores(maximoDeJugadores(armado.plantillaId))
       : undefined;
 
   const tocarEmpezar = () => {
@@ -82,7 +82,7 @@ export function SheetDeArmado({ visible, onCerrar }: Props) {
     setIntento(true);
     const parte = primero === 'nombre' ? 'nombre' : primero === 'plantilla' ? 'plantilla' : 'jugadores';
     scroll.current?.scrollTo({ y: Math.max(0, (posiciones.current[parte] ?? 0) - espacios.md), animated: true });
-    AccessibilityInfo.announceForAccessibility(mensajesDe(armado.faltantes, armado.jugadores.length).join('. '));
+    AccessibilityInfo.announceForAccessibility(mensajesDe(armado.faltantes, armado.jugadores.length, maximoDeJugadores(armado.plantillaId)).join('. '));
   };
 
   // Paso 6.2: crea la partida, cierra el sheet y la abre (7.1).
@@ -256,12 +256,12 @@ export function SheetDeArmado({ visible, onCerrar }: Props) {
 }
 
 /** Lo que lee el lector de pantalla al tocar EMPEZAR sin tener todo. */
-function mensajesDe(faltantes: Faltante[], jugadores: number): string[] {
+function mensajesDe(faltantes: Faltante[], jugadores: number, maximo: number): string[] {
   return faltantes.map((faltante) => {
     if (faltante === 'nombre') return es.nuevaPartida.faltaNombre;
     if (faltante === 'plantilla') return es.nuevaPartida.faltaTipo;
     if (faltante === 'pocos') return es.nuevaPartida.faltanJugadores(MINIMO_JUGADORES - jugadores);
-    return es.nuevaPartida.sobranJugadores;
+    return es.nuevaPartida.sobranJugadores(maximo);
   });
 }
 

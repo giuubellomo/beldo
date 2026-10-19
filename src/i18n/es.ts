@@ -75,7 +75,9 @@ export const es = {
     faltaNombre: 'Escribí un nombre para la partida',
     faltaTipo: 'Elegí un tipo de juego',
     faltanJugadores: (faltan: number) => (faltan === 1 ? 'Agregá 1 participante más' : `Agregá al menos ${faltan} participantes`),
-    sobranJugadores: 'Dejá solo dos: uno por equipo',
+    /** Con más de los que admite la plantilla: el Truco (2) o la Canasta (6). */
+    sobranJugadores: (maximo: number) =>
+      maximo === 2 ? 'Dejá solo dos: uno por equipo' : `Este juego admite hasta ${maximo} participantes`,
   },
 
   participante: {
@@ -262,6 +264,29 @@ export const es = {
       `${nombres.join(' y ')} ${nombres.length > 1 ? 'llegaron' : 'llegó'} a ${puntos} pts`,
     terminarOSeguir: '¿Terminás la partida? Si fue un error de carga, seguí y corregilo.',
     seguir: 'Seguir',
+  },
+
+  /** La calculadora de la Canasta (cambio 101) */
+  canasta: {
+    limpias: 'Canastas limpias',
+    sucias: 'Canastas sucias',
+    treses: 'Treses rojos',
+    negros: 'Treses negros',
+    // Cambio 102: sin canastas, los treses rojos restan
+    tresesRestan: 'Sin canastas, los treses rojos restan',
+    cierre: 'Cierre',
+    noCerro: 'No',
+    cerro: 'Sí',
+    bajadas: 'Cartas bajadas',
+    enMano: 'Cartas en la mano',
+    totalDeLaMano: 'Total de la mano',
+    /** El cierre lo tenía otro: al guardar se le saca, como una regla única. */
+    cerroOtro: (nombres: string[]) => `Cerró ${nombres.join(' y ')}: al guardar se le saca`,
+    /** Debajo del nombre, en la ronda en juego: lo mínimo para la primera bajada. */
+    bajaCon: (minimo: number) => `Baja con ${minimo}`,
+    // Solo para el lector de pantalla
+    escribirBajadas: 'Escribir los puntos de las cartas bajadas',
+    escribirEnMano: 'Escribir los puntos de las cartas en la mano',
   },
 
   /** El tablero del Truco (cambio 93): de a palitos, en malas y buenas. */

@@ -15,6 +15,7 @@ import { escribir, leer } from '@/db/client';
 import { maximoDeJugadores, MINIMO_JUGADORES } from '@/domain/participantes';
 import { nombreDePartida } from '@/domain/partidas';
 import { aplicarCarga, marcarRegla as marcarEnRonda, puedeCerrarRonda } from '@/domain/rondas';
+import { aplicarManoDeCanasta, MAXIMO_TRESES, type ManoDeCanasta } from '@/domain/canasta';
 import { RONDA_DEL_TRUCO, sumarAlPuntaje } from '@/domain/truco';
 import type {
   AvatarTipo,
@@ -293,6 +294,54 @@ export function guardarCarga(
 
     // Todas las de la ronda y no solo las de este participante: una regla unica
     // que marco se le saca a otro. Las que no cambiaron vuelven con sus puntos.
+    await db.runAsync('DELETE FROM marca_regla WHERE ronda_partida_id = ?', [rondaId]);
+    for (const entrada of nueva.entradas) {
+      for (const [reglaId, puntosAplicados] of Object.entries(entrada.marcas)) {
+        await db.runAsync(
+          `INSERT INTO marca_regla (ronda_partida_id, regla_id, participante_id, puntos_aplicados)
+           VALUES (?, ?, ?, ?)`,
+          [rondaId, reglaId, entrada.participanteId, puntosAplicados],
+        );
+      }
+    }
+  });
+}
+
+/**
+ * Cambio 101. Lo que guarda la calculadora de la Canasta para un participante en
+ * una mano: el puntaje manual en 0 y una marca por concepto, como las arma
+ * `aplicarManoDeCanasta`. Se reescriben las marcas de toda la ronda: si este
+ * cerro, al que tenia el cierre se le saca.
+ */
+export function guardarManoDeCanasta(
+  partidaId: string,
+  numeroRonda: number,
+  participanteId: string,
+  mano: ManoDeCanasta,
+): Promise<void> {
+  const cantidades = [mano.limpias, mano.sucias, mano.treses, mano.negros, mano.bajadas, mano.enMano];
+  if (
+    !cantidades.every((n) => Number.isInteger(n) && n >= 0) ||
+    mano.treses > MAXIMO_TRESES ||
+    mano.negros > MAXIMO_TRESES
+  ) {
+    return Promise.reject(new Error(`La mano de Canasta va con cantidades enteras y positivas: ${JSON.stringify(mano)}`));
+  }
+
+  return escribir(async (db) => {
+    const partida = await partidaEditable(db, partidaId);
+    const rondaId = await rondaEditable(db, partida, numeroRonda);
+    exigirParticipante(partida, participanteId);
+
+    const ronda = partida.rondas.find((r) => r.numero === numeroRonda)!;
+    const nueva = aplicarManoDeCanasta(ronda, participanteId, mano);
+
+    await db.runAsync(
+      `INSERT INTO puntaje_ronda (ronda_partida_id, participante_id, puntos_manuales)
+       VALUES (?, ?, 0)
+       ON CONFLICT (ronda_partida_id, participante_id) DO UPDATE SET puntos_manuales = 0`,
+      [rondaId, participanteId],
+    );
     await db.runAsync('DELETE FROM marca_regla WHERE ronda_partida_id = ?', [rondaId]);
     for (const entrada of nueva.entradas) {
       for (const [reglaId, puntosAplicados] of Object.entries(entrada.marcas)) {

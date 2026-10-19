@@ -8,8 +8,10 @@ import { Boton } from '@/components/Boton';
 import { BotonIcono } from '@/components/BotonIcono';
 import { PaginasDeRondas } from '@/components/PaginasDeRondas';
 import { Popup } from '@/components/Popup';
+import { PopupDeCanasta } from '@/components/PopupDeCanasta';
 import { PopupDeCarga } from '@/components/PopupDeCarga';
 import { TableroDeTruco } from '@/components/TableroDeTruco';
+import { esCanasta } from '@/domain/canasta';
 import { rondaEnCursoIncompleta } from '@/domain/rondas';
 import { esTruco } from '@/domain/truco';
 import type { Partida, RondaJugada } from '@/domain/types';
@@ -56,6 +58,13 @@ export default function PantallaDePartida() {
       return;
     }
     setConfirmando(false);
+    irAlPodio();
+  };
+
+  // El aviso de objetivo (cambio 92), sin la confirmacion de TERMINAR: ya es una.
+  const terminarDesdeElAviso = async () => {
+    await mutar(() => partidas.finalizar(partida.id));
+    setCargaAbierta(false);
     irAlPodio();
   };
 
@@ -124,22 +133,32 @@ export default function PantallaDePartida() {
         </View>
       </Popup>
 
-      <PopupDeCarga
-        visible={cargaAbierta}
-        partida={partida}
-        numeroRonda={carga?.numeroRonda ?? 0}
-        participanteId={carga?.participanteId ?? null}
-        onCerrar={() => setCargaAbierta(false)}
-        onGuardar={(puntos, reglas) =>
-          mutar(() => partidas.guardarCarga(partida.id, carga!.numeroRonda, carga!.participanteId, puntos, reglas))
-        }
-        // El aviso de objetivo (cambio 92), sin la confirmacion de TERMINAR: ya es una.
-        onTerminar={async () => {
-          await mutar(() => partidas.finalizar(partida.id));
-          setCargaAbierta(false);
-          irAlPodio();
-        }}
-      />
+      {/* Cambio 101: la Canasta carga cada mano con su calculadora. */}
+      {esCanasta(partida.plantilla) ? (
+        <PopupDeCanasta
+          visible={cargaAbierta}
+          partida={partida}
+          numeroRonda={carga?.numeroRonda ?? 0}
+          participanteId={carga?.participanteId ?? null}
+          onCerrar={() => setCargaAbierta(false)}
+          onGuardar={(mano) =>
+            mutar(() => partidas.guardarManoDeCanasta(partida.id, carga!.numeroRonda, carga!.participanteId, mano))
+          }
+          onTerminar={terminarDesdeElAviso}
+        />
+      ) : (
+        <PopupDeCarga
+          visible={cargaAbierta}
+          partida={partida}
+          numeroRonda={carga?.numeroRonda ?? 0}
+          participanteId={carga?.participanteId ?? null}
+          onCerrar={() => setCargaAbierta(false)}
+          onGuardar={(puntos, reglas) =>
+            mutar(() => partidas.guardarCarga(partida.id, carga!.numeroRonda, carga!.participanteId, puntos, reglas))
+          }
+          onTerminar={terminarDesdeElAviso}
+        />
+      )}
     </SafeAreaView>
   );
 }

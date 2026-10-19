@@ -8,7 +8,7 @@
  */
 import { aplicarCarga } from './rondas';
 import { totalDeParticipante } from './scoring';
-import type { Partida } from './types';
+import type { Partida, RondaJugada } from './types';
 
 /** Con lo que arranca el objetivo al activarlo en el editor. */
 export const OBJETIVO_POR_DEFECTO = 100;
@@ -37,14 +37,23 @@ export function nuevosEnElObjetivo(
   puntosManuales: number,
   reglasMarcadas: string[],
 ): string[] {
+  const ronda = partida.rondas.find((r) => r.numero === numeroRonda);
+  if (ronda === undefined) return [];
+  return nuevosConRonda(
+    partida,
+    aplicarCarga(ronda, partida.plantilla, participanteId, puntosManuales, reglasMarcadas),
+  );
+}
+
+/**
+ * Lo mismo, con la ronda ya armada como va a quedar: la usa la calculadora de la
+ * Canasta (cambio 101), que no carga por `aplicarCarga`.
+ */
+export function nuevosConRonda(partida: Partida, rondaNueva: RondaJugada): string[] {
   const antes = new Set(llegaronAlObjetivo(partida));
   const despues: Partida = {
     ...partida,
-    rondas: partida.rondas.map((ronda) =>
-      ronda.numero === numeroRonda
-        ? aplicarCarga(ronda, partida.plantilla, participanteId, puntosManuales, reglasMarcadas)
-        : ronda,
-    ),
+    rondas: partida.rondas.map((ronda) => (ronda.numero === rondaNueva.numero ? rondaNueva : ronda)),
   };
   return llegaronAlObjetivo(despues).filter((id) => !antes.has(id));
 }

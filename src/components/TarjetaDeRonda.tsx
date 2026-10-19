@@ -8,6 +8,7 @@ import {
   reglasDeLaRonda,
   reglasSinAsignar,
 } from '@/domain/rondas';
+import { esCanasta, minimoParaBajar } from '@/domain/canasta';
 import { ordenarPorTotalHastaRonda } from '@/domain/ranking';
 import { mejoresDeRonda, puntajeCargado, totalHastaRonda } from '@/domain/scoring';
 import type { Participante, Partida, Plantilla, RondaJugada } from '@/domain/types';
@@ -172,7 +173,7 @@ function Filas({ ronda, partida, onTocarParticipante, ordenadas = false }: Props
         participante={participante}
         puntaje={puntajeCargado(ronda, partida.plantilla, participante.id)}
         total={totalHastaRonda(partida, participante.id, ronda.numero)}
-        reglas={reglasMarcadas(ronda, partida.plantilla, participante.id)}
+        reglas={detalleDeFila(ronda, partida, participante.id)}
         onPress={onTocarParticipante && (() => onTocarParticipante(participante.id))}
       />
     );
@@ -306,6 +307,17 @@ function FilaDeParticipante({ participante, puntaje, total, reglas, onPress }: P
       {contenido}
     </Pressable>
   );
+}
+
+/**
+ * Lo que va debajo del nombre: las reglas que se llevo en la ronda (cambio 77).
+ * En la Canasta (cambio 101) las reglas son el desglose de la mano y no se
+ * nombran: en la ronda en juego va lo minimo para bajar, segun lo que llevaba.
+ */
+function detalleDeFila(ronda: RondaJugada, partida: Partida, participanteId: string): string[] {
+  if (!esCanasta(partida.plantilla)) return reglasMarcadas(ronda, partida.plantilla, participanteId);
+  if (ronda.estado !== 'en_curso') return [];
+  return [es.canasta.bajaCon(minimoParaBajar(totalHastaRonda(partida, participanteId, ronda.numero - 1)))];
 }
 
 /** Las reglas de la ronda que tiene marcadas un participante, en el orden de la plantilla. */
